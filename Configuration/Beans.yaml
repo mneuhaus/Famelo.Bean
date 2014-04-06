@@ -1,0 +1,33 @@
+
+controller:
+  name: 'Controller'
+  variables:
+    controllerName:
+      question: "Controller name: "
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Controller.php'
+      target: '{classesPath}/Controller/{controllerName|ucfirst}Controller.php'
+      builder: '\Famelo\Bean\Builder\FluidBuilder'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName|ucfirst}/Index.html'
+      builder: '\Famelo\Bean\Builder\FluidBuilder'
+
+model:
+  name: 'Model'
+  implementation: '\Famelo\Bean\Bean\ModelBean'
+  grow: true
+  variables:
+    modelName:
+      question: "Model name: "
+  files:
+    model:
+      builder: '\Famelo\Bean\Builder\ModelBuilder'
+      template: 'resource://Famelo.Bean/Private/Beans/Model/Model.php'
+      target: '{classesPath}/Domain/Model/{modelName|ucfirst}.php'
+      partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
+    repository:
+      builder: '\Famelo\Bean\Builder\PhpBuilder'
+      template: 'resource://Famelo.Bean/Private/Beans/Model/Repository.php'
+      target: '{classesPath}/Domain/Repository/{modelName|ucfirst}Repository.php'

@@ -1,0 +1,24 @@
+#                                                                        #
+# Configuration for the TYPO3 Flow Framework                             #
+#                                                                        #
+# This file contains the default base configuration for the TYPO3 Flow   #
+# Framework. Don't modify this file but add configuration options to     #
+# the Settings.yaml file in the in global Configuration/ directory       #
+# instead.                                                               #
+#                                                                        #
+
+TYPO3:
+
+  Flow:
+
+    object:
+
+      # Exclude classes from object management (Reflection and Configuration building).
+      # Sequence of package keys (a * as wildcard as last character is allowed) each
+      # with a sequence of regular expressions.
+      # The package key must match the key found in PackageStates.php regarding case,
+      # so it might be needed to add two inclusions (like for Doctrine below).
+      # Each regular expression will be tested against the list of fully qualified
+      # class names in the package and classes will be excluded if matching.
+      excludeClasses:
+        'PhpParser.*': ['.*']

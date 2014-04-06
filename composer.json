@@ -1,0 +1,13 @@
+{
+    "name": "famelo/bean",
+    "type": "typo3-flow-package",
+    "description": "Code generation package for TYPO3.Flow",
+    "require": {
+        "typo3/flow": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Famelo\\Bean": "Classes"
+        }
+    }
+}
