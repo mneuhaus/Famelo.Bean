@@ -100,6 +100,7 @@ trait InteractionTrait {
      */
     public function ask($question, $default = null, array $autocomplete = null, $fuzzy = FALSE) {
         $this->initialize();
+
         if ($fuzzy === FALSE) {
             return $this->dialog->ask($this->output, $question, $default, $autocomplete);
         }

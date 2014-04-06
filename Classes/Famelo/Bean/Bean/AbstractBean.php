@@ -78,7 +78,11 @@ class AbstractBean {
 				$builderClassName = $file['builder'];
 			}
 			$builder = new $builderClassName($file);
-            $builder->buildNew($file['template'], $file['target'], $this->variables);
+			if (isset($file['mode'])) {
+				call_user_method($file['mode'], $builder, $file['template'], $file['target'], $this->variables);
+			} else {
+            	$builder->buildNew($file['template'], $file['target'], $this->variables);
+			}
         }
     }
 
@@ -87,7 +91,7 @@ class AbstractBean {
 			switch (isset($variable['type']) ? $variable['type'] : 'ask') {
 				case 'ask':
 				default:
-						$this->variables[$variableName] = $this->controller->ask('<q>' . $variable['question'] . '</q>');
+						$this->variables[$variableName] = $this->controller->ask('<q>' . $variable['question'] . '</q>' . chr(10));
 					break;
 			}
 			$this->outputLine();

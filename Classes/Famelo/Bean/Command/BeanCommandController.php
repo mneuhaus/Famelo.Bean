@@ -111,7 +111,7 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 		}
 
 		do {
-			$choice = $this->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions));
+			$choice = $this->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions), TRUE);
 			if (!isset($actions[$choice])) {
 				$this->outputLine('<error>unknown action</error>');
 			}

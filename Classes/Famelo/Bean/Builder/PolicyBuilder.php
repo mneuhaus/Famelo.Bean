@@ -12,43 +12,22 @@ use Famelo\Common\Command\AbstractInteractiveCommandController;
 use PhpParser\BuilderFactory;
 use PhpParser\Lexer;
 use PhpParser\Parser;
-use PhpParser\printer\Standard;
 use PhpParser\Template;
+use PhpParser\printer\Standard;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Utility\Files;
 
 /**
  */
-class FluidBuilder extends AbstractBuilder {
-	/**
-	 * @var \TYPO3\Fluid\View\StandaloneView
-	 * @Flow\Inject
-	 */
-	protected $view;
-
-	public function buildNew($source, $target, $variables = array()) {
-		$this->view->setTemplatePathAndFilename($source);
-		$this->view->assignMultiple($variables);
-
-		$content = $this->view->render();
-
-		$target = $this->generateFileName($target, $variables);
-
-		if (!is_dir(dirname($target))) {
-			Files::createDirectoryRecursively(dirname($target));
-		}
-		if (!file_exists($target)) {
-			$this->outputLine('<info>Created: ' . $target . '</info>');
-			// echo $content;
-			file_put_contents($target, $content);
-		}
-	}
-
+class PolicyBuilder extends FluidBuilder {
 	public function append($source, $target, $variables = array()) {
 		$this->view->setTemplatePathAndFilename($source);
 		$this->view->assignMultiple($variables);
 
 		$content = $this->view->render();
+
+		$targetData = Yaml::parse($content);
 
 		$target = $this->generateFileName($target, $variables);
 
@@ -57,10 +36,12 @@ class FluidBuilder extends AbstractBuilder {
 		}
 
 		if (file_exists($target)) {
-			$content = file_get_contents($target) . chr(10) . $content;
+			$content = file_get_contents($target);
+			$sourceData = Yaml::parse($content);
+			$targetData = array_merge_recursive($sourceData, $targetData);
 		}
 
 		$this->outputLine('<info>Created: ' . $target . '</info>');
-		file_put_contents($target, $content);
+		file_put_contents($target, Yaml::dump($targetData, 10, 2));
 	}
 }
