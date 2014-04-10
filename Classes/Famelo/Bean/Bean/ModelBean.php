@@ -8,6 +8,7 @@ namespace Famelo\Bean\Bean;
  *                                                                        */
 
 use Doctrine\Common\Util\Inflector;
+use Famelo\Bean\Builder\ModelBuilder;
 use Famelo\Bean\PhpParser\Printer\TYPO3;
 use Famelo\Common\Command\AbstractInteractiveCommandController;
 use PhpParser\BuilderFactory;
@@ -34,28 +35,6 @@ class ModelBean extends AbstractBean {
 		$this->packageManager =  $packageManager;
 	}
 
-	// public function run() {
-	// 	$this->builder->setPartialPath('resource://Famelo.Bean/Private/Beans/Model/');
-	// 	parent::runt();
-	// 	// $this->fetchVariables();
-
-	// 	// $fields = $variables['fields'];
-	// 	// unset($variables['fields']);
-
-	// 	// $template = file_get_contents($source);
-	// 	// $template = new Template($this->parser, $template);
-	// 	// $node = $template->getStmts($variables);
-	// 	// $this->controller->outputLine('<info>Source: ' . $source . '</info>');
-
-	// 	// foreach ($fields as $field) {
-	// 	// 	$this->addField($node, $field);
-	// 	// }
-
-	// 	// foreach ($this->configuration['files'] as $file) {
- //  //           $this->builder->buildNew($file['template'], $file['target'], $this->variables);
- //  //       }
-	// }
-
 	public function grow() {
 		$this->classFiles = array();
 		foreach ($this->packageManager->getAvailablePackages() as $package) {
@@ -64,15 +43,17 @@ class ModelBean extends AbstractBean {
 			}
 		}
 
+		$builder = new ModelBuilder();
+
 		$className = $this->chooseClassNameAnnotatedWith(
 			'<q>Which Entity do you want to grow?</q>',
 			'\TYPO3\Flow\Annotations\Entity'
 		);
 
 		$fields = array();
-		while (($field = $this->createField()) !== FALSE) {
+		while (($field = $builder->createField()) !== FALSE) {
 			$fields[] = $field;
-		    $this->previewFields($fields);
+		    $builder->previewFields($fields);
 		}
 
 		$fileName = $this->classFiles[$className];
@@ -84,7 +65,7 @@ class ModelBean extends AbstractBean {
 		    $stmts = $this->parser->parse($code);
 
 		    foreach ($fields as $field) {
-		    	$this->addField($stmts, $field);
+		    	$builder->addField($stmts, $field);
 		    }
 
 		    // pretty print

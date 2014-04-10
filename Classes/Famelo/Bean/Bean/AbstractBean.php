@@ -98,7 +98,7 @@ class AbstractBean {
 		}
 	}
 
-	public function chooseClassNameAnnotatedWith($question, $annotations) {
+	public function chooseClassNameAnnotatedWith($question, $annotation) {
 		$choices = array();
 		$classNames = $this->reflectionService->getClassNamesByAnnotation($annotation);
 		foreach ($classNames as $key => $className) {
