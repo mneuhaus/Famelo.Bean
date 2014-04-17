@@ -97,18 +97,4 @@ class AbstractBean {
 			$this->outputLine();
 		}
 	}
-
-	public function chooseClassNameAnnotatedWith($question, $annotation) {
-		$choices = array();
-		$classNames = $this->reflectionService->getClassNamesByAnnotation($annotation);
-		foreach ($classNames as $key => $className) {
-			$choices[] = $className;
-		}
-		$choice = $this->ask($question . chr(10),
-			NULL,
-			$choices,
-			TRUE
-		);
-		return $classNames[array_search($choice, $choices)];
-	}
 }

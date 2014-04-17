@@ -26,7 +26,10 @@ class FluidBuilder extends AbstractBuilder {
 	 */
 	protected $view;
 
-	public function buildNew($source, $target, $variables = array()) {
+	public function plant($variables = array()) {
+		$source = $this->configuration['template'];
+		$target = $this->configuration['target'];
+
 		$this->view->setTemplatePathAndFilename($source);
 		$this->view->assignMultiple($variables);
 
@@ -44,23 +47,23 @@ class FluidBuilder extends AbstractBuilder {
 		}
 	}
 
-	public function append($source, $target, $variables = array()) {
-		$this->view->setTemplatePathAndFilename($source);
-		$this->view->assignMultiple($variables);
+	// public function append($source, $target, $variables = array()) {
+	// 	$this->view->setTemplatePathAndFilename($source);
+	// 	$this->view->assignMultiple($variables);
 
-		$content = $this->view->render();
+	// 	$content = $this->view->render();
 
-		$target = $this->generateFileName($target, $variables);
+	// 	$target = $this->generateFileName($target, $variables);
 
-		if (!is_dir(dirname($target))) {
-			Files::createDirectoryRecursively(dirname($target));
-		}
+	// 	if (!is_dir(dirname($target))) {
+	// 		Files::createDirectoryRecursively(dirname($target));
+	// 	}
 
-		if (file_exists($target)) {
-			$content = file_get_contents($target) . chr(10) . $content;
-		}
+	// 	if (file_exists($target)) {
+	// 		$content = file_get_contents($target) . chr(10) . $content;
+	// 	}
 
-		$this->outputLine('<info>Created: ' . $target . '</info>');
-		file_put_contents($target, $content);
-	}
+	// 	$this->outputLine('<info>Created: ' . $target . '</info>');
+	// 	file_put_contents($target, $content);
+	// }
 }

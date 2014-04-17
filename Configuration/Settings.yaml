@@ -22,3 +22,19 @@ TYPO3:
       # class names in the package and classes will be excluded if matching.
       excludeClasses:
         'PhpParser.*': ['.*']
+
+Famelo:
+  Bean:
+    Variables:
+      ask: '\Famelo\Bean\Variables\AskVariable'
+      repeater: '\Famelo\Bean\Variables\RepeaterVariable'
+      properties: '\Famelo\Bean\Variables\PropertiesVariable'
+      propertyType: '\Famelo\Bean\Variables\PropertyTypeVariable'
+
+    PropertyTypes:
+      string: 'string'
+      integer: 'integer'
+      float: 'float'
+      boolean: 'boolean'
+      datetime: '\DateTime'
+      relation: 'relation'

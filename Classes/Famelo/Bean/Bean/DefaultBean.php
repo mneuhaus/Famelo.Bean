@@ -16,4 +16,44 @@ use TYPO3\Flow\Utility\Files;
  * @Flow\Scope("singleton")
  */
 class DefaultBean extends AbstractBean {
+	/**
+	 * @var array
+	 * @Flow\Inject(setting="Variables")
+	 */
+	protected $variableImplementations;
+
+    public function plant() {
+        $this->fetchVariables();
+
+        foreach ($this->configuration['files'] as $file) {
+			$builderClassName = '\Famelo\Bean\Builder\FluidBuilder';
+			if (isset($file['builder'])) {
+				$builderClassName = $file['builder'];
+			}
+			$builder = new $builderClassName($file);
+			if (isset($file['mode'])) {
+				call_user_method($file['mode'], $builder, $this->variables);
+			} else {
+            	$builder->plant($this->variables);
+			}
+        }
+    }
+
+	public function fetchVariables() {
+		foreach ($this->configuration['variables'] as $variableName => $variable) {
+			$variableType = isset($variable['type']) ? $variable['type'] : 'ask';
+			$variableImplementation = $this->getVariableImplementation($variableType);
+			$variable = new $variableImplementation($variable, $this->variables);
+			$variable->interact();
+			$this->variables[$variableName] = $variable->getValue();
+		}
+		// var_dump($this->variables);
+	}
+
+	public function getVariableImplementation($variableType) {
+		if (isset($this->variableImplementations[$variableType])) {
+			return $this->variableImplementations[$variableType];
+		}
+		return $variableType;
+	}
 }

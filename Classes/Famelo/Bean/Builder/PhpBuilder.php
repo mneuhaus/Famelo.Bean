@@ -42,7 +42,10 @@ class PhpBuilder extends AbstractBuilder {
 		$this->printer = new TYPO3;
 	}
 
-	public function buildNew($source, $target, $variables = array()) {
+	public function plant($variables = array()) {
+		$source = $this->configuration['template'];
+		$target = $this->configuration['target'];
+
 		$target = $this->generateFileName($target, $variables);
 		$template = file_get_contents($source);
 		$template = new Template($this->parser, $template);

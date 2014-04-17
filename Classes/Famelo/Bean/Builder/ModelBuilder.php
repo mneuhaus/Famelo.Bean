@@ -21,7 +21,11 @@ use TYPO3\Flow\Utility\Files;
  */
 class ModelBuilder extends PhpBuilder {
 
-	public function buildNew($source, $target, $variables = array()) {
+	public function plant($variables = array()) {
+		var_dump($variables);
+		$source = $this->configuration['template'];
+		$target = $this->configuration['target'];
+
 		$target = $this->generateFileName($target, $variables);
 
 		$template = file_get_contents($source);

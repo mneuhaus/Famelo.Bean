@@ -73,28 +73,10 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 						$implementation = $bean['implementation'];
 					}
 					$bean = new $implementation($bean, $this->package, $this);
-					$bean->run();
+					$bean->plant();
 					break;
 			}
 			$this->outputLine();
-		}
-	}
-
-	/**
-	 * An example command
-	 *
-	 * @param string $requiredArgument This argument is required
-	 * @param string $optionalArgument This argument is optional
-	 * @return void
-	 */
-	public function growCommand() {
-		while (($bean = $this->chooseGrowAction()) !== 'done') {
-			$implementation = '\Famelo\Bean\Bean\DefaultBean';
-			if (isset($bean['implementation'])) {
-				$implementation = $bean['implementation'];
-			}
-			$bean = new $implementation($bean, $this->package, $this);
-			$bean->grow();
 		}
 	}
 
