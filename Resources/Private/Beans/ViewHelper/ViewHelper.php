@@ -1,5 +1,5 @@
 <?php
-namespace {namespace}\Controller{controllerName -> b:format.objectNamespace()};
+namespace {namespace}\ViewHelpers{viewHelperName -> b:format.objectNamespace()};
 /*                                                                        *
 <f:format.padding padLength="74"> * This script belongs to the TYPO3 Flow package "{packageKey}".</f:format.padding>*
  *                                                                        *
@@ -7,15 +7,13 @@ namespace {namespace}\Controller{controllerName -> b:format.objectNamespace()};
 
 use TYPO3\Flow\Annotations as Flow;
 
-class {controllerName -> b:format.objectName()}Controller extends \TYPO3\Flow\Mvc\Controller\ActionController {
-	<f:for each="{actions}" as="action">
+class {viewHelperName -> b:format.objectName()}ViewHelper extends \TYPO3\Fluid\Core\ViewHelper\AbstractViewHelper {
 	/**
-	 * @return void
+	 *
+	 * @param string $foo
+	 * @return string
 	 */
-	public function {action.actionName}Action() {
-		$this->view->assign('foos', array(
-			'bar', 'baz'
-		));
+	public function render($foo) {
+		return $foo;
 	}
-	</f:for>
 }

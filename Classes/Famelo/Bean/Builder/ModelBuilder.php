@@ -22,9 +22,11 @@ use TYPO3\Flow\Utility\Files;
 class ModelBuilder extends PhpBuilder {
 
 	public function plant($variables = array()) {
-		var_dump($variables);
 		$source = $this->configuration['template'];
 		$target = $this->configuration['target'];
+
+		$properties = $variables['properties'];
+		unset($variables['properties']);
 
 		$target = $this->generateFileName($target, $variables);
 
@@ -32,14 +34,8 @@ class ModelBuilder extends PhpBuilder {
 		$template = new Template($this->parser, $template);
 		$node = $template->getStmts($variables);
 
-		$fields = array();
-		while (($field = $this->createField()) !== FALSE) {
-			$fields[] = $field;
-			$this->previewFields($fields);
-		}
-
-		foreach ($fields as $field) {
-			$this->addField($node, $field);
+		foreach ($properties as $property) {
+			$this->addProperty($node, $property);
 		}
 
 		$code = $this->printCode($node);
@@ -48,13 +44,13 @@ class ModelBuilder extends PhpBuilder {
 			Files::createDirectoryRecursively(dirname($target));
 		}
 		if (!file_exists($target)) {
-			$this->outputLine('<info>Created: ' . $target . '</info>');
-			// echo $content;
 			file_put_contents($target, $code);
+
+			return array('<info>Created: ' . $target . '</info>');
 		}
 	}
 
-	public function addField($stmts, $field) {
+	public function addProperty($stmts, $property) {
 		$stmt = $this->getClass($stmts);
 		$properties = $this->getClassProperties($stmt);
 		$classMethods = $this->getClassMethods($stmt);
@@ -63,15 +59,16 @@ class ModelBuilder extends PhpBuilder {
 			'get', 'set', 'add', 'remove'
 		);
 
-		$propertyName = $field['name'];
-		$propertyType = $field['type'];
-		$propertySubType = isset($field['subtype']) ? $field['subtype'] : NULL;
+		$propertyName = $property['propertyName'];
+		$propertyType = $property['propertyType'];
+		$docComment = '';
+		$propertySubType = isset($property['propertySubtype']) ? $property['propertySubtype'] : NULL;
 
 		$partial = 'Properties/Basic';
 		$propertyNode = $this->getPartial($partial, array(
 			'name' 	=> $propertyName,
 			'type' 	=> $propertyType,
-			'docComment' => $field['docComment']
+			'docComment' => $docComment
 		));
 		$stmt->stmts = array_merge($stmt->stmts, $propertyNode);
 
@@ -107,113 +104,5 @@ class ModelBuilder extends PhpBuilder {
 				$stmt->stmts = array_merge($stmt->stmts, $methodNode);
 			}
 		}
-	}
-
-	public function createField() {
-		$name = $this->ask('<q>Property name (leave empty to skip):</q> ');
-		if (empty($name)) {
-			return FALSE;
-		}
-		$type = $this->chooseFieldType();
-
-		$field = array(
-			'name' => $name,
-			'type' => $type,
-			'docComment' => NULL
-		);
-
-		switch ($type) {
-			case 'relation':
-				$field = $this->createRelationField($field);
-				break;
-		}
-
-		$this->outputLine();
-		return $field;
-	}
-
-	public function createRelationField($field) {
-		$relations = array('one to many', 'many to one', 'one to one', 'many to many');
-		$type = $this->ask(
-			'<q>What type of relation (' . implode(', ', $relations) . ':</q> ' . chr(10),
-			NULL,
-			$relations,
-			TRUE
-		);
-
-		$className = $this->chooseClassNameAnnotatedWith(
-			'<q>What is the target entity for this relation?</q>',
-			'\TYPO3\Flow\Annotations\Entity'
-		);
-
-		$field['relationType'] = $type;
-		$field['docComments'] = array();
-
-		switch ($type) {
-			case 'one to one':
-				$mappedBy = $this->ask(
-					'<q>mapped by:</q> ' . chr(10)
-				);
-				$field['type'] = '\\' . $className;
-				$field['docComment'] = '@ORM\OneToOne(mappedBy="' . $mappedBy . '")';
-				break;
-
-			case 'many to one':
-				$mappedBy = $this->ask(
-					'<q>inversed by:</q> ' . chr(10)
-				);
-				$field['type'] = '\\' . $className;
-				$field['docComment'] = '@ORM\ManyToOne(inversedBy="' . $mappedBy . '")';
-
-				break;
-
-			case 'one to many':
-				$mappedBy = $this->ask(
-					'<q>mapped by:</q> ' . chr(10)
-				);
-				$field['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				$field['docComment'] = '@ORM\OneToMany(mappedBy="' . $mappedBy . '")';
-				$field['subtype'] = '\\' . $className;
-				break;
-
-			case 'many to many':
-				$mappedBy = $this->ask(
-					'<q>mapped by:</q> ' . chr(10)
-				);
-				$field['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				$field['docComment'] = '@ORM\ManyToMany(inversedBy="' . $mappedBy . '")';
-				$field['subtype'] = '\\' . $className;
-				break;
-		}
-		return $field;
-	}
-
-	public function chooseFieldType() {
-		$types = array(
-			'string' => 'string',
-			'integer' => 'integer',
-			'float' => 'float',
-			'boolean' => 'boolean',
-			'datetime' => '\DateTime',
-			'done' => 'done',
-			'relation' => 'relation'
-		);
-		$choice = $this->ask(
-			'<q>Property Type (' . implode(',', array_keys($types)) . '):</q> ' . chr(10),
-			NULL,
-			array_keys($types)
-		);
-		return $types[$choice];
-	}
-
-	public function previewFields($fields) {
-		$rows = array();
-		foreach ($fields as $field) {
-			$rows[] = array(
-				$field['name'],
-				$field['type']
-			);
-		}
-		$this->table($rows, array('Name', 'Type'));
 	}
 }

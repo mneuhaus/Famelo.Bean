@@ -1,4 +1,6 @@
-
+#                                                                        #
+# Create a new Controller with specified Actions                         #
+#                                                                        #
 controller:
   name: 'Controller'
   variables:
@@ -12,15 +14,36 @@ controller:
   files:
     -
       template: 'resource://Famelo.Bean/Private/Beans/Controller/Controller.php'
-      target: '{classesPath}/Controller/{controllerName|ucfirst}Controller.php'
+      target: '{classesPath}/Controller/{controllerName -> b:format.path()}Controller.php'
     -
       builder: '\Famelo\Bean\Builder\RepeaterBuilder'
       variable: actions
       files:
         -
           template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
-          target: '{resourcesPath}/Private/Templates/{controllerName|ucfirst}/{actionName|ucfirst}.html'
+          target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/{actionName -> k:format.ucfirst()}.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Policy.yaml'
+      target: '{configurationPath}/Policy.yaml'
+      builder: '\Famelo\Bean\Builder\PolicyBuilder'
+      mode: append
 
+#                                                                        #
+# Create a new ViewHelper                                                #
+#                                                                        #
+viewhelper:
+  name: 'ViewHelper'
+  variables:
+    viewHelperName:
+      question: "ViewHelper name: "
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/ViewHelper/ViewHelper.php'
+      target: '{classesPath}/ViewHelpers/{viewHelperName -> b:format.path()}ViewHelper.php'
+
+#                                                                        #
+# Create a new Model                                                     #
+#                                                                        #
 'model/create':
   name: 'Model'
   # implementation: '\Famelo\Bean\Bean\ModelBean'
@@ -39,41 +62,39 @@ controller:
     -
       builder: '\Famelo\Bean\Builder\ModelBuilder'
       template: 'resource://Famelo.Bean/Private/Beans/Model/Model.php'
-      target: '{classesPath}/Domain/Model/{modelName|ucfirst}.php'
+      target: '{classesPath}/Domain/Model/{modelName -> k:format.ucfirst()}.php'
       partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
     -
       builder: '\Famelo\Bean\Builder\PhpBuilder'
       template: 'resource://Famelo.Bean/Private/Beans/Model/Repository.php'
-      target: '{classesPath}/Domain/Repository/{modelName|ucfirst}Repository.php'
+      target: '{classesPath}/Domain/Repository/{modelName -> k:format.ucfirst()}Repository.php'
 
-# 'neos/plugin':
-#   name: 'Neos Plugin'
-#   variables:
-#     pluginLabel:
-#       question: "Please enter a short simple description of the Plugin that will be used for the selecting the Plugin in the Neos Backend: "
-#     pluginName:
-#       question: "Please enter a name for this Plugin containing only alphanumeric characters: "
-#     controllerName:
-#       question: "Please enter a name of the Controller: "
-#   files:
-#     policy:
-#       template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/Policy.yaml'
-#       target: '{configurationPath}/Policy.yaml'
-#       builder: '\Famelo\Bean\Builder\PolicyBuilder'
-#       mode: append
-#     nodeType:
-#       template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/NodeType.yaml'
-#       target: '{configurationPath}/NodeTypes.yaml'
-#       mode: append
-#     typoScript:
-#       template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/TypoScript.ts2'
-#       target: '{resourcesPath}/Private/TypoScript/Root.ts2'
-#       mode: append
-#     controller:
-#       template: 'resource://Famelo.Bean/Private/Beans/Controller/Controller.php'
-#       target: '{classesPath}/Controller/{controllerName|ucfirst}Controller.php'
-#       builder: '\Famelo\Bean\Builder\FluidBuilder'
-#     template:
-#       template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
-#       target: '{resourcesPath}/Private/Templates/{controllerName|ucfirst}/Index.html'
-#       builder: '\Famelo\Bean\Builder\FluidBuilder'
+'neos/plugin':
+  name: 'Neos Plugin'
+  variables:
+    pluginLabel:
+      question: "Please enter a short simple description of the Plugin that will be used for the selecting the Plugin in the Neos Backend: "
+    pluginName:
+      question: "Please enter a name for this Plugin containing only alphanumeric characters: "
+    controllerName:
+      question: "Please enter a name of the Controller: "
+  files:
+    policy:
+      template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/Policy.yaml'
+      target: '{configurationPath}/Policy.yaml'
+      builder: '\Famelo\Bean\Builder\PolicyBuilder'
+      mode: append
+    nodeType:
+      template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/NodeType.yaml'
+      target: '{configurationPath}/NodeTypes.yaml'
+      mode: append
+    typoScript:
+      template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/TypoScript.ts2'
+      target: '{resourcesPath}/Private/TypoScript/Root.ts2'
+      mode: append
+    controller:
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Controller.php'
+      target: '{classesPath}/Controller/{controllerName -> k:format.ucfirst()}Controller.php'
+    template:
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName -> k:format.ucfirst()}/Index.html'

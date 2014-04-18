@@ -46,6 +46,12 @@ class PhpBuilder extends AbstractBuilder {
 		$source = $this->configuration['template'];
 		$target = $this->configuration['target'];
 
+		foreach ($variables as $key => $value) {
+			if (is_object($value) || is_array($value)) {
+				unset($variables[$key]);
+			}
+		}
+
 		$target = $this->generateFileName($target, $variables);
 		$template = file_get_contents($source);
 		$template = new Template($this->parser, $template);
@@ -57,8 +63,8 @@ class PhpBuilder extends AbstractBuilder {
 			Files::createDirectoryRecursively(dirname($target));
 		}
 		if (!file_exists($target)) {
-			$this->outputLine('<info>Created: ' . $target . '</info>');
 			file_put_contents($target, $code);
+			return array('<info>Created: ' . $target . '</info>');
 		}
 	}
 

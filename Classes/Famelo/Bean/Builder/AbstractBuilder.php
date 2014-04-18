@@ -28,25 +28,18 @@ class AbstractBuilder {
 	 */
 	protected $configuration;
 
+	/**
+	 * @var \Famelo\Bean\Fluid\KickstartView
+	 * @Flow\Inject
+	 */
+	protected $view;
+
 	public function __construct($configuration) {
 		$this->configuration = $configuration;
 	}
 
 	public function generateFileName($target, $variables) {
-		$replacements = array();
-		foreach ($variables as $key => $value) {
-			if (is_array($value) || is_object($value)) {
-				continue;
-			}
-			$replacements['{' . $key . '}'] = $value;
-			$replacements['{' . $key . '|ucfirst}'] = ucfirst($value);
-			$replacements['{' . $key . '|lcfirst}'] = lcfirst($value);
-			$replacements['{' . $key . '|strtolower}'] = strtolower($value);
-		}
-		return str_replace(
-			array_keys($replacements),
-			array_values($replacements),
-			$target
-		);
+		$this->view->assignMultiple($variables);
+		return $this->view->renderString($target);
 	}
 }

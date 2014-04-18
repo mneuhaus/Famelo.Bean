@@ -22,9 +22,21 @@ class DefaultBean extends AbstractBean {
 	 */
 	protected $variableImplementations;
 
+	/**
+	 * @var boolean
+	 */
+	protected $silent = FALSE;
+
+	public function setSilent($silent) {
+		$this->silent = $silent;
+	}
+
     public function plant() {
         $this->fetchVariables();
+        $this->build($this->variables);
+    }
 
+    public function build($variables) {
         foreach ($this->configuration['files'] as $file) {
 			$builderClassName = '\Famelo\Bean\Builder\FluidBuilder';
 			if (isset($file['builder'])) {
@@ -32,9 +44,14 @@ class DefaultBean extends AbstractBean {
 			}
 			$builder = new $builderClassName($file);
 			if (isset($file['mode'])) {
-				call_user_method($file['mode'], $builder, $this->variables);
+				$changes = call_user_method($file['mode'], $builder, $variables);
 			} else {
-            	$builder->plant($this->variables);
+            	$changes = $builder->plant($variables);
+			}
+			if ($this->silent === FALSE) {
+				foreach ($changes as $change) {
+					$this->outputLine($change);
+				}
 			}
         }
     }

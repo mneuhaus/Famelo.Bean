@@ -1,8 +1,6 @@
-{namespace k=TYPO3\Kickstart\ViewHelpers}
-{namespace b=Famelo\Bean\ViewHelpers}
 resources:
   methods:
-    {packageKey -> b:replace(search: '.', replace: '_')}_{pluginName -> k:format.ucfirst()}Plugin: 'method({namespace}\Controller\{controllerName -> k:format.ucfirst()}Controller->.*Action())'
+    {packageKey -> b:replace(search: '.', replace: '_')}_{pluginName -> k:format.ucfirst()}Plugin: 'method({namespace}\Controller\{controllerName -> b:format.className()}Controller->.*Action())'
 
 acls:
   Everybody:

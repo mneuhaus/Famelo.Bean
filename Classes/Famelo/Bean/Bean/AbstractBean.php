@@ -51,10 +51,9 @@ class AbstractBean {
 	 */
 	protected $controller;
 
-	public function __construct($configuration, $package, $controller) {
+	public function __construct($configuration, $package = NULL) {
 		$this->configuration = $configuration;
 		$this->package = $package;
-		$this->controller = $controller;
 
 		if ($this->package instanceof Package) {
 			$this->variables = array(
@@ -91,10 +90,14 @@ class AbstractBean {
 			switch (isset($variable['type']) ? $variable['type'] : 'ask') {
 				case 'ask':
 				default:
-						$this->variables[$variableName] = $this->controller->ask('<q>' . $variable['question'] . '</q>' . chr(10));
+						$this->variables[$variableName] = $this->ask('<q>' . $variable['question'] . '</q>' . chr(10));
 					break;
 			}
 			$this->outputLine();
 		}
+	}
+
+	public function getVariables() {
+		return $this->variables;
 	}
 }

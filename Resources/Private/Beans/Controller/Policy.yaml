@@ -1,0 +1,8 @@
+resources:
+  methods:
+    {packageKey -> b:replace(search: '.', replace: '_')}_{controllerName -> b:format.path() -> b:replace(search: '/', replace: '_')}Controller: 'method({namespace}\Controller\{controllerName -> b:format.className()}Controller->.*Action())'
+
+acls:
+  Everybody:
+    methods:
+      {packageKey -> b:replace(search: '.', replace: '_')}_{controllerName -> b:format.path() -> b:replace(search: '/', replace: '_')}Controller: GRANT

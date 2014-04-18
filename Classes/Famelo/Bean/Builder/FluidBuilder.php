@@ -20,11 +20,6 @@ use TYPO3\Flow\Utility\Files;
 /**
  */
 class FluidBuilder extends AbstractBuilder {
-	/**
-	 * @var \TYPO3\Fluid\View\StandaloneView
-	 * @Flow\Inject
-	 */
-	protected $view;
 
 	public function plant($variables = array()) {
 		$source = $this->configuration['template'];
@@ -41,29 +36,35 @@ class FluidBuilder extends AbstractBuilder {
 			Files::createDirectoryRecursively(dirname($target));
 		}
 		if (!file_exists($target)) {
-			$this->outputLine('<info>Created: ' . $target . '</info>');
-			// echo $content;
 			file_put_contents($target, $content);
+			return array('<info>Created: ' . $target . '</info>');
 		}
 	}
 
-	// public function append($source, $target, $variables = array()) {
-	// 	$this->view->setTemplatePathAndFilename($source);
-	// 	$this->view->assignMultiple($variables);
+	public function append($variables = array()) {
+		$source = $this->configuration['template'];
+		$target = $this->configuration['target'];
 
-	// 	$content = $this->view->render();
+		$this->view->setTemplatePathAndFilename($source);
+		$this->view->assignMultiple($variables);
 
-	// 	$target = $this->generateFileName($target, $variables);
+		$content = $this->view->render();
 
-	// 	if (!is_dir(dirname($target))) {
-	// 		Files::createDirectoryRecursively(dirname($target));
-	// 	}
+		$target = $this->generateFileName($target, $variables);
 
-	// 	if (file_exists($target)) {
-	// 		$content = file_get_contents($target) . chr(10) . $content;
-	// 	}
+		if (!is_dir(dirname($target))) {
+			Files::createDirectoryRecursively(dirname($target));
+		}
 
-	// 	$this->outputLine('<info>Created: ' . $target . '</info>');
-	// 	file_put_contents($target, $content);
-	// }
+		$changes = array();
+		if (file_exists($target)) {
+			$content = file_get_contents($target) . chr(10) . $content;
+			$changes[] = '<info>Updates: ' . $target . '</info>';
+		} else {
+			$changes[] = '<info>Created: ' . $target . '</info>';
+		}
+		file_put_contents($target, $content);
+
+		return $changes;
+	}
 }

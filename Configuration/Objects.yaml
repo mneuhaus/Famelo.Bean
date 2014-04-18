@@ -1,0 +1,6 @@
+Famelo\Bean\Fluid\KickstartView:
+  properties:
+    renderingContext:
+      object: TYPO3\Fluid\Core\Rendering\RenderingContext
+    templateParser:
+      object: Famelo\Bean\Fluid\TemplateParser

@@ -28,6 +28,7 @@ class RepeaterBuilder extends AbstractBuilder {
 
 	public function plant($variables = array()) {
 		$repetitions = $variables[$this->configuration['variable']];
+		$changes = array();
 		foreach ($repetitions as $repetition) {
 			$repetition = array_merge($variables, $repetition);
 			foreach ($this->configuration['files'] as $file) {
@@ -37,11 +38,12 @@ class RepeaterBuilder extends AbstractBuilder {
 				}
 				$builder = new $builderClassName($file);
 				if (isset($file['mode'])) {
-					call_user_method($file['mode'], $builder, $repetition);
+					$changes = array_merge($changes, call_user_method($file['mode'], $builder, $repetition));
 				} else {
-	            	$builder->plant($repetition);
+	            	$changes = array_merge($changes, $builder->plant($repetition));
 				}
 	        }
 		}
+		return $changes;
 	}
 }

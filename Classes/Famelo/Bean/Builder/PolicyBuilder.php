@@ -21,7 +21,10 @@ use TYPO3\Flow\Utility\Files;
 /**
  */
 class PolicyBuilder extends FluidBuilder {
-	public function append($source, $target, $variables = array()) {
+	public function append($variables = array()) {
+		$source = $this->configuration['template'];
+		$target = $this->configuration['target'];
+
 		$this->view->setTemplatePathAndFilename($source);
 		$this->view->assignMultiple($variables);
 
@@ -35,13 +38,16 @@ class PolicyBuilder extends FluidBuilder {
 			Files::createDirectoryRecursively(dirname($target));
 		}
 
+		$changes = array();
 		if (file_exists($target)) {
 			$content = file_get_contents($target);
 			$sourceData = Yaml::parse($content);
 			$targetData = array_merge_recursive($sourceData, $targetData);
+			$changes[] = '<info>Updated: ' . $target . '</info>';
+		} else {
+			$changes[] = '<info>Created: ' . $target . '</info>';
 		}
-
-		$this->outputLine('<info>Created: ' . $target . '</info>');
 		file_put_contents($target, Yaml::dump($targetData, 10, 2));
+		return $changes;
 	}
 }
