@@ -87,7 +87,7 @@ class ModelTest extends BaseTest {
 			'modelName' => 'oneToMany',
 			'properties' => array(
 				array(
-					'propertyName' => 'local',
+					'propertyName' => 'locals',
 					'propertyType' => '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>',
 					'subtype' => $relationTargetClassName,
 					'relation' => array(
@@ -103,18 +103,67 @@ class ModelTest extends BaseTest {
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToManyRepository';
 		$this->assertClassExists($expectedRepositoryClassName);
 		$this->assertClassExists($expectedModelClassName);
-		$this->assertClassHasProperty($expectedModelClassName, 'local', '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>');
-		$this->assertClassHasMethod($expectedModelClassName, 'getLocal');
-		$this->assertClassHasMethod($expectedModelClassName, 'setLocal');
+		$this->assertClassHasProperty($expectedModelClassName, 'locals', '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>');
+		$this->assertClassHasMethod($expectedModelClassName, 'getLocals');
+		$this->assertClassHasMethod($expectedModelClassName, 'setLocals');
 		$this->assertClassHasMethod($expectedModelClassName, 'addLocal');
 		$this->assertClassHasMethod($expectedModelClassName, 'removeLocal');
-		$this->assertClassHasDocComment($expectedModelClassName, 'local', '@ORM\OneToMany(mappedBy="foreign")');
+		$this->assertClassHasDocComment($expectedModelClassName, 'locals', '@ORM\OneToMany(mappedBy="foreign")');
 
 		// Check the mappedBy autogeneration
 		$this->assertClassExists($relationTargetClassName);
 		$this->assertClassHasProperty($relationTargetClassName, 'foreign', $expectedModelClassName);
 		$this->assertClassHasMethod($relationTargetClassName, 'getForeign');
 		$this->assertClassHasMethod($relationTargetClassName, 'setForeign');
-		$this->assertClassHasDocComment($relationTargetClassName, 'foreign', '@ORM\ManyToOne(inversedBy="local")');
+		$this->assertClassHasDocComment($relationTargetClassName, 'foreign', '@ORM\ManyToOne(inversedBy="locals")');
+	}
+
+	/**
+	* @test
+	*/
+	public function createManyTooneRelation() {
+		$beans = $this->configurationManager->getConfiguration('Beans');
+		$bean = new DefaultBean($beans['model/create']);
+		$bean->setSilent(TRUE);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'ManyToOne/Target',
+			'properties' => array()
+		));
+		$relationTargetClassName = '\Test\Package\Domain\Model\ManyToOne\Target';
+		$bean->build($variables);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'ManyToOne/Source',
+			'properties' => array(
+				array(
+					'propertyName' => 'source',
+					'propertyType' => $relationTargetClassName
+					'relation' => array(
+						'type' => 'ManyToOne',
+						'inversedBy' => 'target'
+					)
+				)
+			)
+		));
+		$bean->build($variables);
+
+		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToManyRepository';
+		$this->assertClassExists($expectedRepositoryClassName);
+		$this->assertClassExists($expectedModelClassName);
+		$this->assertClassHasProperty($expectedModelClassName, 'source', $relationTargetClassName);
+		$this->assertClassHasMethod($expectedModelClassName, 'getSource');
+		$this->assertClassHasMethod($expectedModelClassName, 'setSource');
+		$this->assertClassHasDocComment($expectedModelClassName, 'source', '@ORM\ManyToOne(inversedBy="target")');
+
+		// Check the mappedBy autogeneration
+		$this->assertClassExists($relationTargetClassName);
+		$this->assertClassHasProperty($relationTargetClassName, 'foreign', $expectedModelClassName);
+		$this->assertClassHasMethod($relationTargetClassName, 'getTargets');
+		$this->assertClassHasMethod($relationTargetClassName, 'setTargets');
+		$this->assertClassHasMethod($expectedModelClassName, 'addTarget');
+		$this->assertClassHasMethod($expectedModelClassName, 'removeTarget');
+		$this->assertClassHasDocComment($expectedModelClassName, 'target', '@ORM\OneToMany(mappedBy="source")');
 	}
 }
