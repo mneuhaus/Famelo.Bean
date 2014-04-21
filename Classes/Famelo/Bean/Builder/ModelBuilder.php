@@ -161,6 +161,21 @@ class ModelBuilder extends PhpBuilder {
 					));
 				}
 				break;
+			case 'OneToOne':
+				$reflection = new \ReflectionClass($property['propertyType']);
+				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
+					$this->addPropertiesToClass($reflection->getFileName(), array(
+						array(
+							'propertyName' => $relation['mappedBy'],
+							'propertyType' => $className,
+							'relation' => array(
+								'type' => 'OneToOne',
+								'mappedBy' => $property['propertyName']
+							)
+						)
+					));
+				}
+				break;
 		}
 	}
 

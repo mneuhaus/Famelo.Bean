@@ -194,4 +194,51 @@ class ModelTest extends BaseTest {
 		$this->assertClassHasMethod($relationTargetClassName, 'removeTarget');
 		$this->assertClassHasDocComment($relationTargetClassName, 'targets', '@ORM\OneToMany(mappedBy="source")');
 	}
+
+	/**
+	* @test
+	*/
+	public function createOneToOneRelation() {
+		$beans = $this->configurationManager->getConfiguration('Beans');
+		$bean = new DefaultBean($beans['model/create']);
+		$bean->setSilent(TRUE);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'OneToOne/Target',
+			'properties' => array()
+		));
+		$relationTargetClassName = '\Test\Package\Domain\Model\OneToOne\Target';
+		$bean->build($variables);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'OneToOne/Source',
+			'properties' => array(
+				array(
+					'propertyName' => 'source',
+					'propertyType' => $relationTargetClassName,
+					'relation' => array(
+						'type' => 'OneToOne',
+						'mappedBy' => 'target'
+					)
+				)
+			)
+		));
+		$bean->build($variables);
+
+		$expectedModelClassName = '\Test\Package\Domain\Model\OneToOne\Source';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToOne\SourceRepository';
+		$this->assertClassExists($expectedRepositoryClassName);
+		$this->assertClassExists($expectedModelClassName);
+		$this->assertClassHasProperty($expectedModelClassName, 'source', $relationTargetClassName);
+		$this->assertClassHasMethod($expectedModelClassName, 'getSource');
+		$this->assertClassHasMethod($expectedModelClassName, 'setSource');
+		$this->assertClassHasDocComment($expectedModelClassName, 'source', '@ORM\OneToOne(mappedBy="target")');
+
+		// Check the mappedBy autogeneration
+		$this->assertClassExists($relationTargetClassName);
+		$this->assertClassHasProperty($relationTargetClassName, 'target', $expectedModelClassName);
+		$this->assertClassHasMethod($relationTargetClassName, 'getTarget');
+		$this->assertClassHasMethod($relationTargetClassName, 'setTarget');
+		$this->assertClassHasDocComment($relationTargetClassName, 'target', '@ORM\OneToOne(mappedBy="source")');
+	}
 }
