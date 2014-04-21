@@ -67,6 +67,34 @@ class ModelTest extends BaseTest {
 		$this->assertClassHasMethod($expectedModelClassName, 'getSomeString');
 		$this->assertClassHasMethod($expectedModelClassName, 'setSomeString');
 	}
+	/**
+	* @test
+	*/
+	public function createModelInSubdirectory() {
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'foo/bar/baz',
+			'properties' => array(
+				array(
+					'propertyName' => 'someString',
+					'propertyType' => 'string'
+				)
+			)
+		));
+		$expectedModelClassName = '\Test\Package\Domain\Model\Foo\Bar\Baz';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\Foo\Bar\BazRepository';
+
+		$beans = $this->configurationManager->getConfiguration('Beans');
+		$bean = new DefaultBean($beans['model/create']);
+		$bean->setSilent(TRUE);
+		$bean->build($variables);
+
+		$this->assertClassExists($expectedRepositoryClassName);
+		$this->assertClassExists($expectedModelClassName);
+
+		$this->assertClassHasProperty($expectedModelClassName, 'someString', 'string');
+		$this->assertClassHasMethod($expectedModelClassName, 'getSomeString');
+		$this->assertClassHasMethod($expectedModelClassName, 'setSomeString');
+	}
 
 	/**
 	* @test

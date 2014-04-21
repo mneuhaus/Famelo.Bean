@@ -62,12 +62,11 @@ viewhelper:
     -
       builder: '\Famelo\Bean\Builder\ModelBuilder'
       template: 'resource://Famelo.Bean/Private/Beans/Model/Model.php'
-      target: '{classesPath}/Domain/Model/{modelName -> k:format.ucfirst()}.php'
+      target: '{classesPath}/Domain/Model/{modelName -> b:format.path()}.php'
       partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
     -
-      builder: '\Famelo\Bean\Builder\PhpBuilder'
       template: 'resource://Famelo.Bean/Private/Beans/Model/Repository.php'
-      target: '{classesPath}/Domain/Repository/{modelName -> k:format.ucfirst()}Repository.php'
+      target: '{classesPath}/Domain/Repository/{modelName -> b:format.path()}Repository.php'
 
 'neos/plugin':
   name: 'Neos Plugin'

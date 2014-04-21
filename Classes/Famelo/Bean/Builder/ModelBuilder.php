@@ -32,15 +32,17 @@ class ModelBuilder extends PhpBuilder {
 
 		$target = $this->generateFileName($target, $variables);
 
-		$template = file_get_contents($source);
-		$template = new Template($this->parser, $template);
-		$node = $template->getStmts($variables);
+		$this->view->setTemplatePathAndFilename($source);
+		$this->view->assignMultiple($variables);
+		$parser = new Parser(new Lexer);
+		$statements = $parser->parse($this->view->render());
 
 		foreach ($properties as $property) {
-			$this->addProperty($node, $property);
+			$this->addProperty($statements, $property);
+			$this->generateMappedBy($this->getClassName($statements), $property);
 		}
 
-		$code = $this->printCode($node);
+		$code = $this->printCode($statements);
 
 		if (!is_dir(dirname($target))) {
 			Files::createDirectoryRecursively(dirname($target));
