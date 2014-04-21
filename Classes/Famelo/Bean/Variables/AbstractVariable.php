@@ -10,7 +10,7 @@ abstract class AbstractVariable implements VariableInterface {
 	use InteractionTrait;
 
 	/**
-	 * @var \TYPO3\Flow\Reflection\ReflectionService
+	 * @var \Famelo\Bean\Reflection\RuntimeReflectionService
 	 * @Flow\Inject
 	 */
 	protected $reflectionService;

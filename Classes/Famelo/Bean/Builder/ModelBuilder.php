@@ -22,6 +22,12 @@ use TYPO3\Flow\Utility\Files;
  */
 class ModelBuilder extends PhpBuilder {
 
+	/**
+	 * @var \Famelo\Bean\Reflection\RuntimeReflectionService
+	 * @Flow\Inject
+	 */
+	protected $reflectionService;
+
 	public function plant($variables = array()) {
 		$this->variables = $variables;
 		$source = $this->configuration['template'];
@@ -43,6 +49,7 @@ class ModelBuilder extends PhpBuilder {
 		}
 
 		$code = $this->printCode($statements);
+		$this->reflectionService->addClassNameForAnnotation('\TYPO3\Flow\Annotations\Entity', $this->getClassName($statements));
 
 		if (!is_dir(dirname($target))) {
 			Files::createDirectoryRecursively(dirname($target));

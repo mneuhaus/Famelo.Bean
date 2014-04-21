@@ -13,7 +13,6 @@ class PropertyTypeVariable extends AbstractVariable {
 	protected $propertyTypes;
 
 	public function interact() {
-		var_dump($this->previousVariables);
 		$type = $this->chooseFieldType();
 
 		$property = array(
@@ -47,7 +46,7 @@ class PropertyTypeVariable extends AbstractVariable {
 		$property['relationType'] = $type;
 		$property['docComments'] = array();
 
-		$modelName = $this->previousVariables['modelName'];
+		$modelName = lcfirst($this->previousVariables['modelName']);
 
 		switch ($type) {
 			case 'one to one':
