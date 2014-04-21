@@ -176,6 +176,22 @@ class ModelBuilder extends PhpBuilder {
 					));
 				}
 				break;
+			case 'ManyToMany':
+				$reflection = new \ReflectionClass($property['subtype']);
+				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
+					$this->addPropertiesToClass($reflection->getFileName(), array(
+						array(
+							'propertyName' => $relation['inversedBy'],
+							'propertyType' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
+							'subtype' => $className,
+							'relation' => array(
+								'type' => 'ManyToMany',
+								'inversedBy' => $property['propertyName']
+							)
+						)
+					));
+				}
+				break;
 		}
 	}
 
