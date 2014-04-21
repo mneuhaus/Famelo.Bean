@@ -7,13 +7,14 @@ namespace Famelo\Bean\Builder;
  *                                                                        *
  *                                                                        */
 
+use Doctrine\Common\Util\Inflector;
 use Famelo\Bean\PhpParser\Printer\TYPO3;
 use Famelo\Common\Command\AbstractInteractiveCommandController;
 use PhpParser\BuilderFactory;
 use PhpParser\Lexer;
 use PhpParser\Parser;
-use PhpParser\printer\Standard;
 use PhpParser\Template;
+use PhpParser\printer\Standard;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Utility\Files;
 
@@ -22,6 +23,7 @@ use TYPO3\Flow\Utility\Files;
 class ModelBuilder extends PhpBuilder {
 
 	public function plant($variables = array()) {
+		$this->variables = $variables;
 		$source = $this->configuration['template'];
 		$target = $this->configuration['target'];
 
@@ -45,6 +47,7 @@ class ModelBuilder extends PhpBuilder {
 		}
 		if (!file_exists($target)) {
 			file_put_contents($target, $code);
+			require_once($target);
 
 			return array('<info>Created: ' . $target . '</info>');
 		}
@@ -61,16 +64,17 @@ class ModelBuilder extends PhpBuilder {
 
 		$propertyName = $property['propertyName'];
 		$propertyType = $property['propertyType'];
-		$docComment = '';
 		$propertySubType = isset($property['propertySubtype']) ? $property['propertySubtype'] : NULL;
 
 		$partial = 'Properties/Basic';
 		$propertyNode = $this->getPartial($partial, array(
 			'name' 	=> $propertyName,
 			'type' 	=> $propertyType,
-			'docComment' => $docComment
+			'docComment' => isset($property['relation']) ? $this->generateDocComment($property['relation']) : ''
 		));
 		$stmt->stmts = array_merge($stmt->stmts, $propertyNode);
+
+		$this->generateMappedBy($this->getClassName($stmts), $property);
 
 		foreach ($methods as $method) {
 			$methodName = $method . ucfirst($propertyName);
@@ -104,5 +108,56 @@ class ModelBuilder extends PhpBuilder {
 				$stmt->stmts = array_merge($stmt->stmts, $methodNode);
 			}
 		}
+	}
+
+	public function generateDocComment($relation) {
+		$docComment = '@ORM\\' . $relation['type'];
+		unset($relation['type']);
+		if (count($relation) > 0) {
+			$arguments = array();
+			foreach ($relation as $key => $value) {
+				$arguments[] = $key . '="' . $value . '"';
+			}
+			$docComment.= '(' . implode(', ', $arguments) . ')';
+		}
+		return $docComment;
+	}
+
+	public function generateMappedBy($className, $property) {
+		if (!isset($property['relation'])) {
+			return;
+		}
+		$relation = $property['relation'];
+
+		switch ($relation['type']) {
+			case 'OneToMany':
+				$reflection = new \ReflectionClass($property['subtype']);
+				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
+					$this->addPropertiesToClass($reflection->getFileName(), array(
+						array(
+							'propertyName' => $relation['mappedBy'],
+							'propertyType' => $className,
+							'relation' => array(
+								'type' => 'ManyToOne',
+								'inversedBy' => $property['propertyName']
+							)
+						)
+					));
+				}
+				break;
+		}
+	}
+
+	public function addPropertiesToClass($classPath, $properties) {
+		$template = file_get_contents($classPath);
+		$template = new Template($this->parser, $template);
+		$node = $template->getStmts(array());
+
+		foreach ($properties as $property) {
+			$this->addProperty($node, $property);
+		}
+
+		$code = $this->printCode($node);
+		file_put_contents($classPath, $code);
 	}
 }

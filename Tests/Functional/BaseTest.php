@@ -12,6 +12,9 @@ namespace Famelo\Bean\Tests\Functional;
  *                                                                        */
 
 use Famelo\Bean\Bean\DefaultBean;
+use Famelo\Bean\PhpParser\Reflection\ReflectionClass;
+use PhpParser\Lexer;
+use PhpParser\Parser;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Utility\Files;
@@ -74,7 +77,7 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 	}
 
 	public function assertClassHasProperty($className, $propertyName, $propertyType) {
-		$reflection = new \ReflectionClass($className);
+		$reflection = new ReflectionClass($className);
 		$this->assertTrue($reflection->hasProperty($propertyName),
 			'"' . $className . '::$' . $propertyName . '" not found'
 		);
@@ -85,8 +88,16 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		);
 	}
 
+	public function assertClassHasDocComment($className, $propertyName, $docComment) {
+		$reflection = new ReflectionClass($className);
+		$property = $reflection->getProperty($propertyName);
+		$this->assertTrue(stristr($property->getDocComment(), $docComment) !== FALSE,
+			'"' . $className . '::$' . $propertyName . '" does not have "' . $docComment . '"'
+		);
+	}
+
 	public function assertClassHasMethod($className, $methodName) {
-		$reflection = new \ReflectionClass($className);
+		$reflection = new ReflectionClass($className);
 		$this->assertTrue($reflection->hasMethod($methodName),
 			'"' . $className . '::$' . $methodName . '()" not found'
 		);

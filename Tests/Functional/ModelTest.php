@@ -67,4 +67,54 @@ class ModelTest extends BaseTest {
 		$this->assertClassHasMethod($expectedModelClassName, 'getSomeString');
 		$this->assertClassHasMethod($expectedModelClassName, 'setSomeString');
 	}
+
+	/**
+	* @test
+	*/
+	public function createOneToManyRelation() {
+		$beans = $this->configurationManager->getConfiguration('Beans');
+		$bean = new DefaultBean($beans['model/create']);
+		$bean->setSilent(TRUE);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'relationTarget',
+			'properties' => array()
+		));
+		$relationTargetClassName = '\Test\Package\Domain\Model\RelationTarget';
+		$bean->build($variables);
+
+		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
+			'modelName' => 'oneToMany',
+			'properties' => array(
+				array(
+					'propertyName' => 'local',
+					'propertyType' => '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>',
+					'subtype' => $relationTargetClassName,
+					'relation' => array(
+						'type' => 'OneToMany',
+						'mappedBy' => 'foreign'
+					)
+				)
+			)
+		));
+		$bean->build($variables);
+
+		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToManyRepository';
+		$this->assertClassExists($expectedRepositoryClassName);
+		$this->assertClassExists($expectedModelClassName);
+		$this->assertClassHasProperty($expectedModelClassName, 'local', '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>');
+		$this->assertClassHasMethod($expectedModelClassName, 'getLocal');
+		$this->assertClassHasMethod($expectedModelClassName, 'setLocal');
+		$this->assertClassHasMethod($expectedModelClassName, 'addLocal');
+		$this->assertClassHasMethod($expectedModelClassName, 'removeLocal');
+		$this->assertClassHasDocComment($expectedModelClassName, 'local', '@ORM\OneToMany(mappedBy="foreign")');
+
+		// Check the mappedBy autogeneration
+		$this->assertClassExists($relationTargetClassName);
+		$this->assertClassHasProperty($relationTargetClassName, 'foreign', $expectedModelClassName);
+		$this->assertClassHasMethod($relationTargetClassName, 'getForeign');
+		$this->assertClassHasMethod($relationTargetClassName, 'setForeign');
+		$this->assertClassHasDocComment($relationTargetClassName, 'foreign', '@ORM\ManyToOne(inversedBy="local")');
+	}
 }

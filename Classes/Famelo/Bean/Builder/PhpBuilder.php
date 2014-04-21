@@ -123,4 +123,8 @@ class PhpBuilder extends AbstractBuilder {
 			}
 		}
 	}
+
+	public function getClassName($stmts) {
+		return '\\' . $stmts[0]->name . '\\' . $this->getClass($stmts)->name;
+	}
 }

@@ -56,16 +56,24 @@ class PropertyTypeVariable extends AbstractVariable {
 					$modelName
 				);
 				$property['type'] = '\\' . $className;
-				$property['docComment'] = '@ORM\OneToOne(mappedBy="' . $mappedBy . '")';
+				// $property['docComment'] = '@ORM\OneToOne(mappedBy="' . $mappedBy . '")';
+				$property['relation'] = array(
+					'type' => 'OneToOne',
+					'mappedBy' => $mappedBy
+				);
 				break;
 
 			case 'many to one':
-				$mappedBy = $this->ask(
+				$inversedBy = $this->ask(
 					'<q>inversed by:</q> ' . chr(10),
 					$modelName
 				);
 				$property['type'] = '\\' . $className;
-				$property['docComment'] = '@ORM\ManyToOne(inversedBy="' . $mappedBy . '")';
+				// $property['docComment'] = '@ORM\ManyToOne(inversedBy="' . $inversedBy . '")';
+				$property['relation'] = array(
+					'type' => 'ManyToOne',
+					'inversedBy' => $inversedBy
+				);
 
 				break;
 
@@ -75,7 +83,11 @@ class PropertyTypeVariable extends AbstractVariable {
 					$modelName
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				$property['docComment'] = '@ORM\OneToMany(mappedBy="' . $mappedBy . '")';
+				// $property['docComment'] = '@ORM\OneToMany(mappedBy="' . $mappedBy . '")';
+				$property['relation'] = array(
+					'type' => 'OneToMany',
+					'mappedBy' => $mappedBy
+				);
 				$property['subtype'] = '\\' . $className;
 				break;
 
@@ -85,7 +97,11 @@ class PropertyTypeVariable extends AbstractVariable {
 					$modelName
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				$property['docComment'] = '@ORM\ManyToMany(inversedBy="' . $mappedBy . '")';
+				// $property['docComment'] = '@ORM\ManyToMany(inversedBy="' . $mappedBy . '")';
+				$property['relation'] = array(
+					'type' => 'ManyToMany',
+					'inversedBy' => $inversedBy
+				);
 				$property['subtype'] = '\\' . $className;
 				break;
 		}
