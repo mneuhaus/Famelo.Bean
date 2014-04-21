@@ -149,7 +149,7 @@ class ModelTest extends BaseTest {
 	/**
 	* @test
 	*/
-	public function createManyTooneRelation() {
+	public function createManyToOneRelation() {
 		$beans = $this->configurationManager->getConfiguration('Beans');
 		$bean = new DefaultBean($beans['model/create']);
 		$bean->setSilent(TRUE);
@@ -166,32 +166,32 @@ class ModelTest extends BaseTest {
 			'properties' => array(
 				array(
 					'propertyName' => 'source',
-					'propertyType' => $relationTargetClassName
+					'propertyType' => $relationTargetClassName,
 					'relation' => array(
 						'type' => 'ManyToOne',
-						'inversedBy' => 'target'
+						'inversedBy' => 'targets'
 					)
 				)
 			)
 		));
 		$bean->build($variables);
 
-		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany';
-		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToManyRepository';
+		$expectedModelClassName = '\Test\Package\Domain\Model\ManyToOne\Source';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\ManyToOne\SourceRepository';
 		$this->assertClassExists($expectedRepositoryClassName);
 		$this->assertClassExists($expectedModelClassName);
 		$this->assertClassHasProperty($expectedModelClassName, 'source', $relationTargetClassName);
 		$this->assertClassHasMethod($expectedModelClassName, 'getSource');
 		$this->assertClassHasMethod($expectedModelClassName, 'setSource');
-		$this->assertClassHasDocComment($expectedModelClassName, 'source', '@ORM\ManyToOne(inversedBy="target")');
+		$this->assertClassHasDocComment($expectedModelClassName, 'source', '@ORM\ManyToOne(inversedBy="targets")');
 
 		// Check the mappedBy autogeneration
 		$this->assertClassExists($relationTargetClassName);
-		$this->assertClassHasProperty($relationTargetClassName, 'foreign', $expectedModelClassName);
+		$this->assertClassHasProperty($relationTargetClassName, 'targets', '\Doctrine\Common\Collections\Collection<' . $expectedModelClassName . '>');
 		$this->assertClassHasMethod($relationTargetClassName, 'getTargets');
 		$this->assertClassHasMethod($relationTargetClassName, 'setTargets');
-		$this->assertClassHasMethod($expectedModelClassName, 'addTarget');
-		$this->assertClassHasMethod($expectedModelClassName, 'removeTarget');
-		$this->assertClassHasDocComment($expectedModelClassName, 'target', '@ORM\OneToMany(mappedBy="source")');
+		$this->assertClassHasMethod($relationTargetClassName, 'addTarget');
+		$this->assertClassHasMethod($relationTargetClassName, 'removeTarget');
+		$this->assertClassHasDocComment($relationTargetClassName, 'targets', '@ORM\OneToMany(mappedBy="source")');
 	}
 }

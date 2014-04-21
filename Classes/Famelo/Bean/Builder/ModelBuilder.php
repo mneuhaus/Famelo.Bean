@@ -76,8 +76,6 @@ class ModelBuilder extends PhpBuilder {
 		));
 		$stmt->stmts = array_merge($stmt->stmts, $propertyNode);
 
-		$this->generateMappedBy($this->getClassName($stmts), $property);
-
 		foreach ($methods as $method) {
 			$methodName = $method . ucfirst($propertyName);
 
@@ -142,6 +140,22 @@ class ModelBuilder extends PhpBuilder {
 							'relation' => array(
 								'type' => 'ManyToOne',
 								'inversedBy' => $property['propertyName']
+							)
+						)
+					));
+				}
+				break;
+			case 'ManyToOne':
+				$reflection = new \ReflectionClass($property['propertyType']);
+				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
+					$this->addPropertiesToClass($reflection->getFileName(), array(
+						array(
+							'propertyName' => $relation['inversedBy'],
+							'propertyType' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
+							'subtype' => $className,
+							'relation' => array(
+								'type' => 'OneToMany',
+								'mappedBy' => $property['propertyName']
 							)
 						)
 					));
