@@ -9,6 +9,7 @@ namespace Famelo\Bean\Builder;
 
 use Doctrine\Common\Util\Inflector;
 use Famelo\Bean\PhpParser\Printer\TYPO3;
+use Famelo\Bean\PhpParser\Reflection\ReflectionClass;
 use Famelo\Common\Command\AbstractInteractiveCommandController;
 use PhpParser\BuilderFactory;
 use PhpParser\Lexer;
@@ -21,12 +22,6 @@ use TYPO3\Flow\Utility\Files;
 /**
  */
 class ModelBuilder extends PhpBuilder {
-
-	/**
-	 * @var \Famelo\Bean\Reflection\RuntimeReflectionService
-	 * @Flow\Inject
-	 */
-	protected $reflectionService;
 
 	public function plant($variables = array()) {
 		$this->variables = $variables;
@@ -49,7 +44,8 @@ class ModelBuilder extends PhpBuilder {
 		}
 
 		$code = $this->printCode($statements);
-		$this->reflectionService->addClassNameForAnnotation('\TYPO3\Flow\Annotations\Entity', $this->getClassName($statements));
+		$this->reflectionService->addClassNameForAnnotation('\TYPO3\Flow\Annotations\Entity', ltrim($this->getClassName($statements), '\\'));
+		$this->reflectionService->addFilenameForClassName($this->getClassName($statements), $target);
 
 		if (!is_dir(dirname($target))) {
 			Files::createDirectoryRecursively(dirname($target));
@@ -137,7 +133,14 @@ class ModelBuilder extends PhpBuilder {
 
 		switch ($relation['type']) {
 			case 'OneToMany':
-				$reflection = new \ReflectionClass($property['propertyType']['subtype']);
+				$reflection = new ReflectionClass($property['propertyType']['subtype']);
+				// var_dump(
+				// 	$reflection,
+				// 	$property['propertyType']['subtype'],
+				// 	$relation['mappedBy'],
+				// 	$reflection->hasProperty($relation['mappedBy']),
+				// 	$reflection->getFileName()
+				// );
 				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
@@ -154,7 +157,7 @@ class ModelBuilder extends PhpBuilder {
 				}
 				break;
 			case 'ManyToOne':
-				$reflection = new \ReflectionClass($property['propertyType']['type']);
+				$reflection = new ReflectionClass($property['propertyType']['type']);
 				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
@@ -172,7 +175,7 @@ class ModelBuilder extends PhpBuilder {
 				}
 				break;
 			case 'OneToOne':
-				$reflection = new \ReflectionClass($property['propertyType']['type']);
+				$reflection = new ReflectionClass($property['propertyType']['type']);
 				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
@@ -189,7 +192,7 @@ class ModelBuilder extends PhpBuilder {
 				}
 				break;
 			case 'ManyToMany':
-				$reflection = new \ReflectionClass($property['propertyType']['subtype']);
+				$reflection = new ReflectionClass($property['propertyType']['subtype']);
 				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(

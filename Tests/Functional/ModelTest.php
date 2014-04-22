@@ -23,7 +23,7 @@ class ModelTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicModel() {
-		$this->interaction->expects($this->any())
+		$this->interaction->expects($this->exactly(15))
 						  ->method('ask')
 						  ->will($this->onConsecutiveCalls(
 								'test.package',	// Package
@@ -68,7 +68,7 @@ class ModelTest extends BaseTest {
 	* @test
 	*/
 	public function createModelInSubdirectory() {
-		$this->interaction->expects($this->any())
+		$this->interaction->expects($this->exactly(7))
 						  ->method('ask')
 						  ->will($this->onConsecutiveCalls(
 								'test.package',	// Package
@@ -101,27 +101,25 @@ class ModelTest extends BaseTest {
 		$relationTargetClassName = '\Test\Package\Domain\Model\OneToMany\Target';
 		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany\Source';
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToMany\SourceRepository';
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',		// Package
 
-								'model/create',		// What to do
-								'oneToMany/Target',	// modelName
-								'',					// proceed to generate
+		$this->setAnswers(array(
+			'test.package',		// Package
 
+			'model/create',		// What to do
+			'oneToMany/Target',	// modelName
+			'',					// proceed to generate
 
-								'model/create',				// What to do
-								'oneToMany/Source',			// modelName
-								'sourceItems',				// propertyName
-								'relation',					// propertyType
-								'one to many',				// relationType
-								$relationTargetClassName,	// targetclass
-								'targetItem',				// mappedBy
+			'model/create',				// What to do
+			'oneToMany/Source',			// modelName
+			'sourceItems',				// propertyName
+			'relation',					// propertyType
+			'one to many',				// relationType
+			$relationTargetClassName,	// targetclass
+			'targetItem',				// mappedBy
 
-								'',					// proceed to generate
-								'exit'				// exit command
-						  ));
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
 		$this->controller->plantCommand();
 
 		$this->assertClassExists($expectedRepositoryClassName);
@@ -279,5 +277,47 @@ class ModelTest extends BaseTest {
 		$this->assertClassHasMethod($relationTargetClassName, 'addTargetItem');
 		$this->assertClassHasMethod($relationTargetClassName, 'removeTargetItem');
 		$this->assertClassHasDocComment($relationTargetClassName, 'targetItems', '@ORM\ManyToMany(inversedBy="sourceItems")');
+	}
+
+	/**
+	* @test
+	*/
+	public function createRelationToAlreadyExistingEntity() {
+		$relationTargetClassName = '\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity';
+		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany\Source';
+		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToMany\SourceRepository';
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package',		// Package
+
+								'model/create',				// What to do
+								'oneToMany/Source',			// modelName
+								'sourceItems',				// propertyName
+								'relation',					// propertyType
+								'one to many',				// relationType
+								$relationTargetClassName,	// targetclass
+								'targetItem',				// mappedBy
+
+								'',					// proceed to generate
+								'exit'				// exit command
+						  ));
+		$this->controller->plantCommand();
+
+		$this->assertClassExists($expectedRepositoryClassName);
+		$this->assertClassExists($expectedModelClassName);
+		$this->assertClassHasProperty($expectedModelClassName, 'sourceItems', '\Doctrine\Common\Collections\Collection<' . $relationTargetClassName . '>');
+		$this->assertClassHasMethod($expectedModelClassName, 'getSourceItems');
+		$this->assertClassHasMethod($expectedModelClassName, 'setSourceItems');
+		$this->assertClassHasMethod($expectedModelClassName, 'addSourceItem');
+		$this->assertClassHasMethod($expectedModelClassName, 'removeSourceItem');
+		$this->assertClassHasDocComment($expectedModelClassName, 'sourceItems', '@ORM\OneToMany(mappedBy="targetItem")');
+
+		// Check the mappedBy autogeneration
+		// $this->assertClassExists($relationTargetClassName);
+		$this->assertClassHasProperty($relationTargetClassName, 'targetItem', $expectedModelClassName);
+		$this->assertClassHasMethod($relationTargetClassName, 'getTargetItem');
+		$this->assertClassHasMethod($relationTargetClassName, 'setTargetItem');
+		$this->assertClassHasDocComment($relationTargetClassName, 'targetItem', '@ORM\ManyToOne(inversedBy="sourceItems")');
 	}
 }

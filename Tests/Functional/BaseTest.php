@@ -39,17 +39,22 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->configurationManager	= $this->objectManager->get('TYPO3\Flow\Configuration\ConfigurationManager');
-		$this->reflectionService	= $this->objectManager->get('TYPO3\Flow\Reflection\ReflectionService');
 		$this->controller  			= $this->objectManager->get('Famelo\Bean\Command\BeanCommandController');
+
+		$this->reflectionService	= $this->objectManager->get('Famelo\Bean\Reflection\RuntimeReflectionService');
+		$reflection = new \ReflectionClass('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity');
+		$this->reflectionService->addFilenameForClassName('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity', $reflection->getFileName());
 
 		$this->packagePath = FLOW_PATH_DATA . '/Temporary/Testing/Package/';
 		$this->reset();
 
 		$this->interaction 			= $this->getMock('Famelo\Bean\Service\InteractionService');
 		$this->controller->injectInteraction($this->interaction);
-        $this->interaction->expects($this->any())
-             	->method('outputLine')
-             	->will($this->returnValue(NULL));
+
+
+        $this->consoleOutput = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $style = new \Symfony\Component\Console\Formatter\OutputFormatterStyle('cyan', 'black');
+        $this->consoleOutput->getFormatter()->setStyle('q', $style);
 
 		$packageManager 			= $this->getMock('TYPO3\Flow\Package\PackageManager');
 		$this->controller->injectPackageManager($packageManager);
@@ -109,20 +114,49 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
     }
 }');
 
+		$existingEntityFilename = FLOW_PATH_PACKAGES . 'Application/Famelo.Bean/Tests/Functional/Fixtures/ExistingEntity.php';
+		file_put_contents($existingEntityFilename, '<?php
+namespace Famelo\Bean\Tests\Functional\Fixtures;
+
+use TYPO3\Flow\Annotations as Flow;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @Flow\Entity
+ */
+class ExistingEntity {
+
+}');
+
 	}
 
-	// public function getBaseVariables($packageName) {
-	// 	$variables = array(
-	// 		'packageKey' => $packageName,
-	// 		'namespace' => str_replace('.', '\\', $packageName),
-	// 		'packagePath' => $this->packagePath,
-	// 		'classesPath' => $this->packagePath . '/Classes/' . str_replace('.', '/', $packageName),
-	// 		'resourcesPath' => $this->packagePath . '/Resources/',
-	// 		'configurationPath' => $this->packagePath . '/Configuration/',
-	// 		'documentationPath' => $this->packagePath . '/Documentation/'
-	// 	);
-	// 	return $variables;
-	// }
+	public function setAnswers($answers, $debug = FALSE) {
+		$this->interaction
+				->expects($this->exactly(count($answers)))
+				->method('ask')
+				->will($this->returnCallback(function($question) use(&$answers, $debug) {
+           			$answer = array_shift($answers);
+					if ($debug === TRUE) {
+            			$this->consoleOutput->write($question);
+            			$this->consoleOutput->writeln($answer);
+            		}
+           			return $answer;
+        }));
+        $this->interaction->expects($this->any())
+             	->method('output')
+				->will($this->returnCallback(function($output) use($debug) {
+					if ($debug === TRUE) {
+            			$this->consoleOutput->write($output);
+            		}
+        }));
+        $this->interaction->expects($this->any())
+             	->method('outputLine')
+				->will($this->returnCallback(function($output) use($debug) {
+					if ($debug === TRUE) {
+            			$this->consoleOutput->writeln($output);
+            		}
+        }));
+	}
 
 	public function assertClassExists($className) {
 		$classPath = '/Classes/' . str_replace('\\', '/', $className) . '.php';

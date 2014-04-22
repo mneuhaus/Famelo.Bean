@@ -56,11 +56,18 @@ abstract class AbstractVariable implements VariableInterface {
 		foreach ($classNames as $key => $className) {
 			$choices[] = $className;
 		}
-		$choice = $this->interaction->ask($question . chr(10),
-			NULL,
-			$choices,
-			TRUE
-		);
-		return $classNames[array_search($choice, $choices)];
+		$index = FALSE;
+		while ($index === FALSE) {
+			$choice = ltrim($this->interaction->ask($question . chr(10),
+				NULL,
+				$choices,
+				TRUE
+			), '\\');
+			$index = array_search($choice, $choices);
+			if ($index === FALSE) {
+				$this->interaction->outputLine('class not found: ' . $choice);
+			}
+		}
+		return $classNames[$index];
 	}
 }

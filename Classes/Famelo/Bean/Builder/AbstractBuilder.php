@@ -38,6 +38,12 @@ class AbstractBuilder {
 	 */
 	protected $inflector;
 
+	/**
+	 * @var \Famelo\Bean\Reflection\RuntimeReflectionService
+	 * @Flow\Inject
+	 */
+	protected $reflectionService;
+
 	public function injectInteraction($interaction) {
 		$this->interaction = $interaction;
 	}
