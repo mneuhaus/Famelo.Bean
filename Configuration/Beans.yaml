@@ -29,6 +29,24 @@ controller:
       mode: append
 
 #                                                                        #
+# Create a new CommandController with specified Actions                  #
+#                                                                        #
+commandController:
+  name: 'CommandController'
+  variables:
+    controllerName:
+      question: "CommandController name: "
+    actions:
+      type: repeater
+      variables:
+        actionName:
+          question: "Please enter a name for the action (leave empty to continue)"
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Command/Controller.php'
+      target: '{classesPath}/Command/{controllerName -> b:format.path()}CommandController.php'
+
+#                                                                        #
 # Create a new ViewHelper                                                #
 #                                                                        #
 viewhelper:
