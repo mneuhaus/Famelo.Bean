@@ -38,7 +38,7 @@ class PropertyTypeVariable extends AbstractVariable {
 			TRUE
 		);
 
-		$className = ltrim($this->chooseClassNameAnnotatedWith(
+		$className = '\\' . ltrim($this->chooseClassNameAnnotatedWith(
 			'<q>What is the target entity for this relation?</q>',
 			'\TYPO3\Flow\Annotations\Entity'
 		), '\\');
@@ -54,7 +54,7 @@ class PropertyTypeVariable extends AbstractVariable {
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
-				$property['type'] = '\\' . $className;
+				$property['type'] = $className;
 				$property['relation'] = array(
 					'type' => 'OneToOne',
 					'mappedBy' => $mappedBy
@@ -66,7 +66,7 @@ class PropertyTypeVariable extends AbstractVariable {
 					'<q>inversed by:</q> ' . chr(10),
 					$modelName
 				);
-				$property['type'] = '\\' . $className;
+				$property['type'] = $className;
 				$property['relation'] = array(
 					'type' => 'ManyToOne',
 					'inversedBy' => $inversedBy
@@ -79,12 +79,12 @@ class PropertyTypeVariable extends AbstractVariable {
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
-				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
+				$property['type'] = '\Doctrine\Common\Collections\Collection<' . $className . '>';
 				$property['relation'] = array(
 					'type' => 'OneToMany',
 					'mappedBy' => $mappedBy
 				);
-				$property['subtype'] = '\\' . $className;
+				$property['subtype'] = $className;
 				break;
 
 			case 'many to many':
@@ -92,12 +92,12 @@ class PropertyTypeVariable extends AbstractVariable {
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
-				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
+				$property['type'] = '\Doctrine\Common\Collections\Collection<' . $className . '>';
 				$property['relation'] = array(
 					'type' => 'ManyToMany',
 					'inversedBy' => $inversedBy
 				);
-				$property['subtype'] = '\\' . $className;
+				$property['subtype'] = $className;
 				break;
 		}
 		return $property;
