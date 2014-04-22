@@ -25,25 +25,22 @@ class PluginTest extends BaseTest {
 	* @test
 	*/
 	public function createPlugin() {
-		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
-			'pluginLabel' => 'Foo Plugin',
-			'pluginName' => 'foo',
-			'controllerName' => 'foo',
-			'actions' => array(
-				array(
-					'actionName' => 'index'
-				)
-			)
-		));
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package', // Package
+								'neos/plugin',  // What to do
+								'Foo Plugin',   // pluginLabel
+								'foo',			// pluginName
+								'foo',			// controllerName
+								'index',		// actionName
+								'',				// proceed to generate
+								'exit'			// exit command
+						  ));
+		$this->controller->plantCommand();
+
 		$expectedControllerClassName = '\Test\Package\Controller\FooController';
-
-		$beans = $this->configurationManager->getConfiguration('Beans');
-		$bean = new DefaultBean($beans['neos/plugin']);
-		$bean->setSilent(TRUE);
-		$bean->build($variables);
-
 		$this->assertClassExists($expectedControllerClassName);
-
 		$this->assertClassHasMethod($expectedControllerClassName, 'indexAction');
 		$this->assertFileExists($this->packagePath . '/Resources/Private/Templates/Foo/Index.html');
 

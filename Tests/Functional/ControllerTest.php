@@ -24,23 +24,20 @@ class ControllerTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicController() {
-		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
-			'controllerName' => 'foo',
-			'actions' => array(
-				array(
-					'actionName' => 'index'
-				),
-				array(
-					'actionName' => 'fooBar'
-				)
-			)
-		));
-		$expectedControllerClassName = '\Test\Package\Controller\FooController';
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package',
+								'controller',
+								'foo',
+								'index',
+								'fooBar',
+								'',
+								'exit'
+						  ));
+		$this->controller->plantCommand();
 
-		$beans = $this->configurationManager->getConfiguration('Beans');
-		$bean = new DefaultBean($beans['controller']);
-		$bean->setSilent(TRUE);
-		$bean->build($variables);
+		$expectedControllerClassName = '\Test\Package\Controller\FooController';
 
 		$this->assertClassExists($expectedControllerClassName);
 
@@ -60,24 +57,20 @@ class ControllerTest extends BaseTest {
 	* @test
 	*/
 	public function createControllerInSubdirectory() {
-		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
-			'controllerName' => 'bar/foo/guz',
-			'actions' => array(
-				array(
-					'actionName' => 'index'
-				),
-				array(
-					'actionName' => 'fooBar'
-				)
-			)
-		));
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package',
+								'controller',
+								'bar/foo/guz',
+								'index',
+								'fooBar',
+								'',
+								'exit'
+						  ));
+		$this->controller->plantCommand();
+
 		$expectedControllerClassName = '\Test\Package\Controller\Bar\Foo\GuzController';
-
-		$beans = $this->configurationManager->getConfiguration('Beans');
-		$bean = new DefaultBean($beans['controller']);
-		$bean->setSilent(TRUE);
-		$bean->build($variables);
-
 		$this->assertClassExists($expectedControllerClassName);
 
 		$this->assertClassHasMethod($expectedControllerClassName, 'indexAction');

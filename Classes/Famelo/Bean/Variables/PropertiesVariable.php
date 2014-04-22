@@ -10,11 +10,11 @@ class PropertiesVariable extends AbstractVariable {
 			$properties[] = $field;
 			$this->previewFields($properties);
 		}
-		$this->outputLine();
+		$this->interaction->outputLine();
 	}
 
 	public function createProperty() {
-		$name = $this->ask('<q>Property name (leave empty to skip):</q> ');
+		$name = $this->interaction->ask('<q>Property name (leave empty to skip):</q> ');
 		if (empty($name)) {
 			return FALSE;
 		}
@@ -32,13 +32,13 @@ class PropertiesVariable extends AbstractVariable {
 				break;
 		}
 
-		$this->outputLine();
+		$this->interaction->outputLine();
 		return $property;
 	}
 
 	public function createRelationProperty($property) {
 		$relations = array('one to many', 'many to one', 'one to one', 'many to many');
-		$type = $this->ask(
+		$type = $this->interaction->ask(
 			'<q>What type of relation (' . implode(', ', $relations) . ':</q> ' . chr(10),
 			NULL,
 			$relations,
@@ -55,7 +55,7 @@ class PropertiesVariable extends AbstractVariable {
 
 		switch ($type) {
 			case 'one to one':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>mapped by:</q> ' . chr(10)
 				);
 				$property['type'] = '\\' . $className;
@@ -63,7 +63,7 @@ class PropertiesVariable extends AbstractVariable {
 				break;
 
 			case 'many to one':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>inversed by:</q> ' . chr(10)
 				);
 				$property['type'] = '\\' . $className;
@@ -72,7 +72,7 @@ class PropertiesVariable extends AbstractVariable {
 				break;
 
 			case 'one to many':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>mapped by:</q> ' . chr(10)
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
@@ -81,7 +81,7 @@ class PropertiesVariable extends AbstractVariable {
 				break;
 
 			case 'many to many':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>mapped by:</q> ' . chr(10)
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
@@ -102,7 +102,7 @@ class PropertiesVariable extends AbstractVariable {
 			'done' => 'done',
 			'relation' => 'relation'
 		);
-		$choice = $this->ask(
+		$choice = $this->interaction->ask(
 			'<q>Property Type (' . implode(',', array_keys($types)) . '):</q> ' . chr(10),
 			NULL,
 			array_keys($types)
@@ -118,6 +118,6 @@ class PropertiesVariable extends AbstractVariable {
 				$property['type']
 			);
 		}
-		$this->table($rows, array('Name', 'Type'));
+		$this->interaction->table($rows, array('Name', 'Type'));
 	}
 }

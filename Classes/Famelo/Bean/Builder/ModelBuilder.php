@@ -57,7 +57,6 @@ class ModelBuilder extends PhpBuilder {
 		if (!file_exists($target)) {
 			file_put_contents($target, $code);
 			require_once($target);
-
 			return array('<info>Created: ' . $target . '</info>');
 		}
 	}
@@ -72,14 +71,14 @@ class ModelBuilder extends PhpBuilder {
 		);
 
 		$propertyName = $property['propertyName'];
-		$propertyType = $property['propertyType'];
+		$propertyType = $property['propertyType']['type'];
 		$propertySubType = isset($property['propertySubtype']) ? $property['propertySubtype'] : NULL;
 
 		$partial = 'Properties/Basic';
 		$propertyNode = $this->getPartial($partial, array(
 			'name' 	=> $propertyName,
 			'type' 	=> $propertyType,
-			'docComment' => isset($property['relation']) ? $this->generateDocComment($property['relation']) : ''
+			'docComment' => isset($property['propertyType']['relation']) ? $this->generateDocComment($property['propertyType']['relation']) : ''
 		));
 		$stmt->stmts = array_merge($stmt->stmts, $propertyNode);
 
@@ -131,69 +130,77 @@ class ModelBuilder extends PhpBuilder {
 	}
 
 	public function generateMappedBy($className, $property) {
-		if (!isset($property['relation'])) {
+		if (!isset($property['propertyType']['relation'])) {
 			return;
 		}
-		$relation = $property['relation'];
+		$relation = $property['propertyType']['relation'];
 
 		switch ($relation['type']) {
 			case 'OneToMany':
-				$reflection = new \ReflectionClass($property['subtype']);
+				$reflection = new \ReflectionClass($property['propertyType']['subtype']);
 				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
 							'propertyName' => $relation['mappedBy'],
-							'propertyType' => $className,
-							'relation' => array(
-								'type' => 'ManyToOne',
-								'inversedBy' => $property['propertyName']
+							'propertyType' => array(
+								'type' => $className,
+								'relation' => array(
+									'type' => 'ManyToOne',
+									'inversedBy' => $property['propertyName']
+								)
 							)
 						)
 					));
 				}
 				break;
 			case 'ManyToOne':
-				$reflection = new \ReflectionClass($property['propertyType']);
+				$reflection = new \ReflectionClass($property['propertyType']['type']);
 				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
 							'propertyName' => $relation['inversedBy'],
-							'propertyType' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
-							'subtype' => $className,
-							'relation' => array(
-								'type' => 'OneToMany',
-								'mappedBy' => $property['propertyName']
+							'propertyType' => array(
+								'type' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
+								'subtype' => $className,
+								'relation' => array(
+									'type' => 'OneToMany',
+									'mappedBy' => $property['propertyName']
+								)
 							)
 						)
 					));
 				}
 				break;
 			case 'OneToOne':
-				$reflection = new \ReflectionClass($property['propertyType']);
+				$reflection = new \ReflectionClass($property['propertyType']['type']);
 				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
 							'propertyName' => $relation['mappedBy'],
-							'propertyType' => $className,
-							'relation' => array(
-								'type' => 'OneToOne',
-								'mappedBy' => $property['propertyName']
+							'propertyType' =>  array(
+								'type' => $className,
+								'relation' => array(
+									'type' => 'OneToOne',
+									'mappedBy' => $property['propertyName']
+								)
 							)
 						)
 					));
 				}
 				break;
 			case 'ManyToMany':
-				$reflection = new \ReflectionClass($property['subtype']);
+				$reflection = new \ReflectionClass($property['propertyType']['subtype']);
 				if ($reflection->hasProperty($relation['inversedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(
 							'propertyName' => $relation['inversedBy'],
-							'propertyType' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
-							'subtype' => $className,
-							'relation' => array(
-								'type' => 'ManyToMany',
-								'inversedBy' => $property['propertyName']
+							'propertyType' =>  array(
+								'type' => '\Doctrine\Common\Collections\Collection<' . $className . '>',
+								'subtype' => $className,
+								'relation' => array(
+									'type' => 'ManyToMany',
+									'inversedBy' => $property['propertyName']
+								)
 							)
 						)
 					));

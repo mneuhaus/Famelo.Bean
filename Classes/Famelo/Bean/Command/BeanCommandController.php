@@ -23,6 +23,12 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 	protected $configurationManager;
 
 	/**
+	 * @var \Famelo\Bean\Service\InteractionService
+	 * @Flow\Inject
+	 */
+	protected $interaction;
+
+	/**
 	 * @var \TYPO3\Flow\Package\PackageManager
 	 */
 	protected $packageManager;
@@ -38,6 +44,10 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 	*/
 	public function injectPackageManager(\TYPO3\Flow\Package\PackageManagerInterface $packageManager) {
 		$this->packageManager =  $packageManager;
+	}
+
+	public function injectInteraction($interaction) {
+		$this->interaction = $interaction;
 	}
 
 	/**
@@ -73,10 +83,11 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 						$implementation = $bean['implementation'];
 					}
 					$bean = new $implementation($bean, $this->package, $this);
+					$bean->injectInteraction($this->interaction);
 					$bean->plant();
 					break;
 			}
-			$this->outputLine();
+			$this->interaction->outputLine();
 		}
 	}
 
@@ -93,9 +104,9 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 		}
 
 		do {
-			$choice = $this->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions), TRUE);
+			$choice = $this->interaction->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions), TRUE);
 			if (!isset($actions[$choice])) {
-				$this->outputLine('<error>unknown action</error>');
+				$this->interaction->outputLine('<error>unknown action</error>');
 			}
 		} while (!isset($actions[$choice]));
 		return $actions[$choice];
@@ -116,9 +127,9 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 		}
 
 		do {
-			$choice = $this->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions));
+			$choice = $this->interaction->ask('<q>What do you want to create?</q>' . chr(10), NULL, array_keys($actions));
 			if (!isset($actions[$choice])) {
-				$this->outputLine('<error>unknown action</error>');
+				$this->interaction->outputLine('<error>unknown action</error>');
 			}
 		} while (!isset($actions[$choice]));
 		return $actions[$choice];
@@ -134,12 +145,12 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 				$packages[strtolower($package->getPackageKey())] = $package;
 			}
 		}
-		$choice = $this->ask('<q>Which Package do you want to work on?</q>' . chr(10),
+		$choice = $this->interaction->ask('<q>Which Package do you want to work on?</q>' . chr(10),
 			NULL,
 			$choices,
 			TRUE
 		);
 		$this->package = $packages[$choice];
-		$this->outputLine();
+		$this->interaction->outputLine();
 	}
 }

@@ -21,8 +21,6 @@ use TYPO3\Flow\Utility\Files;
 /**
  */
 class AbstractBuilder {
-	use InteractionTrait;
-
 	/**
 	 * @var array
 	 */
@@ -33,6 +31,16 @@ class AbstractBuilder {
 	 * @Flow\Inject
 	 */
 	protected $view;
+
+	/**
+	 * @var \TYPO3\Kickstart\Utility\Inflector
+	 * @Flow\Inject
+	 */
+	protected $inflector;
+
+	public function injectInteraction($interaction) {
+		$this->interaction = $interaction;
+	}
 
 	public function __construct($configuration) {
 		$this->configuration = $configuration;

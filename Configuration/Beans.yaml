@@ -77,6 +77,11 @@ viewhelper:
       question: "Please enter a name for this Plugin containing only alphanumeric characters: "
     controllerName:
       question: "Please enter a name of the Controller: "
+    actions:
+      type: static
+      variable:
+        -
+          actionName: index
   files:
     policy:
       template: 'resource://Famelo.Bean/Private/Beans/Neos/Plugin/Policy.yaml'

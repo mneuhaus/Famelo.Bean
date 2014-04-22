@@ -30,6 +30,7 @@ Famelo:
       repeater: '\Famelo\Bean\Variables\RepeaterVariable'
       properties: '\Famelo\Bean\Variables\PropertiesVariable'
       propertyType: '\Famelo\Bean\Variables\PropertyTypeVariable'
+      static: '\Famelo\Bean\Variables\StaticVariable'
 
     PropertyTypes:
       string: 'string'

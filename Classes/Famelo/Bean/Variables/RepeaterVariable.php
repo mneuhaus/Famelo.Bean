@@ -27,6 +27,7 @@ class RepeaterVariable extends AbstractVariable {
 			$variableType = isset($variable['type']) ? $variable['type'] : 'ask';
 			$variableImplementation = $this->getVariableImplementation($variableType);
 			$variable = new $variableImplementation($variable, $this->previousVariables);
+			$variable->injectInteraction($this->interaction);
 			$variable->interact();
 			$variables[$variableName] = $variable->getValue();
 
@@ -66,6 +67,6 @@ class RepeaterVariable extends AbstractVariable {
 			}
 			$values[] = $newRow;
 		}
-		$this->table($values, $headers);
+		$this->interaction->table($values, $headers);
 	}
 }

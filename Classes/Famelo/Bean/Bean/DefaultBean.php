@@ -43,6 +43,7 @@ class DefaultBean extends AbstractBean {
 				$builderClassName = $file['builder'];
 			}
 			$builder = new $builderClassName($file);
+			$builder->injectInteraction($this->interaction);
 			if (isset($file['mode'])) {
 				$changes = call_user_method($file['mode'], $builder, $variables);
 			} else {
@@ -50,7 +51,7 @@ class DefaultBean extends AbstractBean {
 			}
 			if ($this->silent === FALSE) {
 				foreach ($changes as $change) {
-					$this->outputLine($change);
+					$this->interaction->outputLine($change);
 				}
 			}
         }
@@ -61,6 +62,7 @@ class DefaultBean extends AbstractBean {
 			$variableType = isset($variable['type']) ? $variable['type'] : 'ask';
 			$variableImplementation = $this->getVariableImplementation($variableType);
 			$variable = new $variableImplementation($variable, $this->variables);
+			$variable->injectInteraction($this->interaction);
 			$variable->interact();
 			$this->variables[$variableName] = $variable->getValue();
 		}

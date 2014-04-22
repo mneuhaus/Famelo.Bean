@@ -7,13 +7,16 @@ use TYPO3\Flow\Annotations as Flow;
 /**
  */
 abstract class AbstractVariable implements VariableInterface {
-	use InteractionTrait;
-
 	/**
 	 * @var \Famelo\Bean\Reflection\RuntimeReflectionService
 	 * @Flow\Inject
 	 */
 	protected $reflectionService;
+
+	/**
+	 * @var \Famelo\Bean\Service\InteractionService
+	 */
+	protected $interaction;
 
 	/**
 	 * @var array
@@ -29,6 +32,10 @@ abstract class AbstractVariable implements VariableInterface {
 	 * @var mixed
 	 */
 	protected $value;
+
+	public function injectInteraction($interaction) {
+		$this->interaction = $interaction;
+	}
 
 	public function __construct($configuration, $previousVariables) {
 		$this->configuration = $configuration;
@@ -49,7 +56,7 @@ abstract class AbstractVariable implements VariableInterface {
 		foreach ($classNames as $key => $className) {
 			$choices[] = $className;
 		}
-		$choice = $this->ask($question . chr(10),
+		$choice = $this->interaction->ask($question . chr(10),
 			NULL,
 			$choices,
 			TRUE

@@ -40,8 +40,49 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		parent::setUp();
 		$this->configurationManager	= $this->objectManager->get('TYPO3\Flow\Configuration\ConfigurationManager');
 		$this->reflectionService	= $this->objectManager->get('TYPO3\Flow\Reflection\ReflectionService');
-		$this->packagePath = FLOW_PATH_DATA . '/Temporary/Testing/Package';
+		$this->controller  			= $this->objectManager->get('Famelo\Bean\Command\BeanCommandController');
+
+		$this->packagePath = FLOW_PATH_DATA . '/Temporary/Testing/Package/';
 		$this->reset();
+
+		$this->interaction 			= $this->getMock('Famelo\Bean\Service\InteractionService');
+		$this->controller->injectInteraction($this->interaction);
+        $this->interaction->expects($this->any())
+             	->method('outputLine')
+             	->will($this->returnValue(NULL));
+
+		$packageManager 			= $this->getMock('TYPO3\Flow\Package\PackageManager');
+		$this->controller->injectPackageManager($packageManager);
+		$package 					= $this->getMock('TYPO3\Flow\Package\Package', array(), array($packageManager, 'Test.Package', $this->packagePath));
+        $packageManager ->expects($this->any())
+             			->method('getAvailablePackages')
+             			->will($this->returnValue(array($package)));
+        $manifest = new \stdClass();
+        $manifest->type = 'typo3';
+        $package->expects($this->any())
+             	->method('getComposerManifest')
+             	->will($this->returnValue($manifest));
+        $package->expects($this->any())
+             	->method('getPackageKey')
+             	->will($this->returnValue('Test.Package'));
+        $package->expects($this->any())
+             	->method('getNamespace')
+             	->will($this->returnValue('Test\Package'));
+        $package->expects($this->any())
+             	->method('getPackagePath')
+             	->will($this->returnValue($this->packagePath));
+        $package->expects($this->any())
+             	->method('getClassesNamespaceEntryPath')
+             	->will($this->returnValue($this->packagePath . 'Classes/Test/Package/'));
+        $package->expects($this->any())
+             	->method('getResourcesPath')
+             	->will($this->returnValue($this->packagePath . 'Resources/'));
+        $package->expects($this->any())
+             	->method('getConfigurationPath')
+             	->will($this->returnValue($this->packagePath . 'Configuration/'));
+        $package->expects($this->any())
+             	->method('getDocumentationPath')
+             	->will($this->returnValue($this->packagePath . 'Documentation/'));
 	}
 
 	/**
@@ -50,23 +91,38 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		$this->modelName = NULL;
 		$this->packageName = NULL;
 		$this->properties = NULL;
+
 		if (is_dir($this->packagePath)) {
 			Files::emptyDirectoryRecursively($this->packagePath);
 		}
+		$composerFileName = $this->packagePath . 'composer.json';
+		file_put_contents($composerFileName, '{
+    "name": "test/package",
+    "type": "typo3-flow-package"
+    "require": {
+        "typo3/flow": "2.1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Test\\Package": "Classes"
+        }
+    }
+}');
+
 	}
 
-	public function getBaseVariables($packageName) {
-		$variables = array(
-			'packageKey' => $packageName,
-			'namespace' => str_replace('.', '\\', $packageName),
-			'packagePath' => $this->packagePath,
-			'classesPath' => $this->packagePath . '/Classes/' . str_replace('.', '/', $packageName),
-			'resourcesPath' => $this->packagePath . '/Resources/',
-			'configurationPath' => $this->packagePath . '/Configuration/',
-			'documentationPath' => $this->packagePath . '/Documentation/'
-		);
-		return $variables;
-	}
+	// public function getBaseVariables($packageName) {
+	// 	$variables = array(
+	// 		'packageKey' => $packageName,
+	// 		'namespace' => str_replace('.', '\\', $packageName),
+	// 		'packagePath' => $this->packagePath,
+	// 		'classesPath' => $this->packagePath . '/Classes/' . str_replace('.', '/', $packageName),
+	// 		'resourcesPath' => $this->packagePath . '/Resources/',
+	// 		'configurationPath' => $this->packagePath . '/Configuration/',
+	// 		'documentationPath' => $this->packagePath . '/Documentation/'
+	// 	);
+	// 	return $variables;
+	// }
 
 	public function assertClassExists($className) {
 		$classPath = '/Classes/' . str_replace('\\', '/', $className) . '.php';

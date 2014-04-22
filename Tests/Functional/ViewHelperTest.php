@@ -23,16 +23,17 @@ class ViewHelperTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicViewHelper() {
-		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
-			'viewHelperName' => 'foo'
-		));
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package',
+								'viewhelper',
+								'foo',
+								'exit'
+						  ));
+		$this->controller->plantCommand();
+
 		$expectedClassName = '\Test\Package\ViewHelpers\FooViewHelper';
-
-		$beans = $this->configurationManager->getConfiguration('Beans');
-		$bean = new DefaultBean($beans['viewhelper']);
-		$bean->setSilent(TRUE);
-		$bean->build($variables);
-
 		$this->assertClassExists($expectedClassName);
 		$this->assertClassHasMethod($expectedClassName, 'render');
 	}
@@ -41,16 +42,17 @@ class ViewHelperTest extends BaseTest {
 	* @test
 	*/
 	public function createViewHelperInSubdirectory() {
-		$variables = array_merge($this->getBaseVariables('Test.Package'), array(
-			'viewHelperName' => 'bar/foo/guz'
-		));
+		$this->interaction->expects($this->any())
+						  ->method('ask')
+						  ->will($this->onConsecutiveCalls(
+								'test.package',
+								'viewhelper',
+								'bar/foo/guz',
+								'exit'
+						  ));
+		$this->controller->plantCommand();
+
 		$expectedClassName = '\Test\Package\ViewHelpers\Bar\Foo\GuzViewHelper';
-
-		$beans = $this->configurationManager->getConfiguration('Beans');
-		$bean = new DefaultBean($beans['viewhelper']);
-		$bean->setSilent(TRUE);
-		$bean->build($variables);
-
 		$this->assertClassExists($expectedClassName);
 		$this->assertClassHasMethod($expectedClassName, 'render');
 	}

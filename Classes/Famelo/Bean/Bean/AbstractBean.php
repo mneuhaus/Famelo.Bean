@@ -32,6 +32,12 @@ class AbstractBean {
 	protected $inflector;
 
 	/**
+	 * @var \Famelo\Bean\Service\InteractionService
+	 * @Flow\Inject
+	 */
+	protected $interaction;
+
+	/**
 	 * @var array
 	 */
 	protected $configuration;
@@ -50,6 +56,10 @@ class AbstractBean {
 	 * @var \Famelo\Kickstart\Command\KickstartCommandController
 	 */
 	protected $controller;
+
+	public function injectInteraction($interaction) {
+		$this->interaction = $interaction;
+	}
 
 	public function __construct($configuration, $package = NULL) {
 		$this->configuration = $configuration;
@@ -93,7 +103,7 @@ class AbstractBean {
 						$this->variables[$variableName] = $this->ask('<q>' . $variable['question'] . '</q>' . chr(10));
 					break;
 			}
-			$this->outputLine();
+			$this->interaction->outputLine();
 		}
 	}
 

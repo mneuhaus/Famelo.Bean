@@ -15,33 +15,33 @@ class PropertyTypeVariable extends AbstractVariable {
 	public function interact() {
 		$type = $this->chooseFieldType();
 
-		$property = array(
+		$propertyType = array(
 			'type' => $type,
 			'docComment' => NULL
 		);
 
 		switch ($type) {
 			case 'relation':
-				$property = $this->createRelationProperty($property);
+				$propertyType = $this->createRelationProperty($propertyType);
 				break;
 		}
 
-		$this->value = $property;
+		$this->value = $propertyType;
 	}
 
 	public function createRelationProperty($property) {
 		$relations = array('one to many', 'many to one', 'one to one', 'many to many');
-		$type = $this->ask(
+		$type = $this->interaction->ask(
 			'<q>What type of relation (' . implode(', ', $relations) . '):</q> ' . chr(10),
 			NULL,
 			$relations,
 			TRUE
 		);
 
-		$className = $this->chooseClassNameAnnotatedWith(
+		$className = ltrim($this->chooseClassNameAnnotatedWith(
 			'<q>What is the target entity for this relation?</q>',
 			'\TYPO3\Flow\Annotations\Entity'
-		);
+		), '\\');
 
 		$property['relationType'] = $type;
 		$property['docComments'] = array();
@@ -50,12 +50,11 @@ class PropertyTypeVariable extends AbstractVariable {
 
 		switch ($type) {
 			case 'one to one':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
 				$property['type'] = '\\' . $className;
-				// $property['docComment'] = '@ORM\OneToOne(mappedBy="' . $mappedBy . '")';
 				$property['relation'] = array(
 					'type' => 'OneToOne',
 					'mappedBy' => $mappedBy
@@ -63,12 +62,11 @@ class PropertyTypeVariable extends AbstractVariable {
 				break;
 
 			case 'many to one':
-				$inversedBy = $this->ask(
+				$inversedBy = $this->interaction->ask(
 					'<q>inversed by:</q> ' . chr(10),
 					$modelName
 				);
 				$property['type'] = '\\' . $className;
-				// $property['docComment'] = '@ORM\ManyToOne(inversedBy="' . $inversedBy . '")';
 				$property['relation'] = array(
 					'type' => 'ManyToOne',
 					'inversedBy' => $inversedBy
@@ -77,12 +75,11 @@ class PropertyTypeVariable extends AbstractVariable {
 				break;
 
 			case 'one to many':
-				$mappedBy = $this->ask(
+				$mappedBy = $this->interaction->ask(
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				// $property['docComment'] = '@ORM\OneToMany(mappedBy="' . $mappedBy . '")';
 				$property['relation'] = array(
 					'type' => 'OneToMany',
 					'mappedBy' => $mappedBy
@@ -91,12 +88,11 @@ class PropertyTypeVariable extends AbstractVariable {
 				break;
 
 			case 'many to many':
-				$mappedBy = $this->ask(
+				$inversedBy = $this->interaction->ask(
 					'<q>mapped by (Default: ' . $modelName . '):</q> ' . chr(10),
 					$modelName
 				);
 				$property['type'] = '\Doctrine\Common\Collections\Collection<\\' . $className . '>';
-				// $property['docComment'] = '@ORM\ManyToMany(inversedBy="' . $mappedBy . '")';
 				$property['relation'] = array(
 					'type' => 'ManyToMany',
 					'inversedBy' => $inversedBy
@@ -108,7 +104,7 @@ class PropertyTypeVariable extends AbstractVariable {
 	}
 
 	public function chooseFieldType() {
-		$choice = $this->ask(
+		$choice = $this->interaction->ask(
 			'<q>Property Type (' . implode(',', array_keys($this->propertyTypes)) . '):</q> ' . chr(10),
 			NULL,
 			array_keys($this->propertyTypes),
