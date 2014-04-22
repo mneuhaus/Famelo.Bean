@@ -23,14 +23,12 @@ class ViewHelperTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicViewHelper() {
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',
-								'viewhelper',
-								'foo',
-								'exit'
-						  ));
+		$this->setAnswers(array(
+			'test.package',
+			'viewhelper',
+			'foo',
+			'exit'
+		));
 		$this->controller->plantCommand();
 
 		$expectedClassName = '\Test\Package\ViewHelpers\FooViewHelper';
@@ -42,14 +40,12 @@ class ViewHelperTest extends BaseTest {
 	* @test
 	*/
 	public function createViewHelperInSubdirectory() {
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',
-								'viewhelper',
-								'bar/foo/guz',
-								'exit'
-						  ));
+		$this->setAnswers(array(
+			'test.package',
+			'viewhelper',
+			'bar/foo/guz',
+			'exit'
+		));
 		$this->controller->plantCommand();
 
 		$expectedClassName = '\Test\Package\ViewHelpers\Bar\Foo\GuzViewHelper';

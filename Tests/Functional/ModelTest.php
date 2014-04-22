@@ -23,31 +23,29 @@ class ModelTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicModel() {
-		$this->interaction->expects($this->exactly(15))
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',	// Package
-								'model/create',	// What to do
-								'basic',		// modelName
+		$this->setAnswers(array(
+			'test.package',	// Package
+			'model/create',	// What to do
+			'basic',		// modelName
 
-								'someString',	// propertyName
-								'string',		// propertyType
+			'someString',	// propertyName
+			'string',		// propertyType
 
-								'someInteger',	// propertyName
-								'integer',		// propertyType
+			'someInteger',	// propertyName
+			'integer',		// propertyType
 
-								'someBoolean',	// propertyName
-								'boolean',		// propertyType
+			'someBoolean',	// propertyName
+			'boolean',		// propertyType
 
-								'someFloat',	// propertyName
-								'float',		// propertyType
+			'someFloat',	// propertyName
+			'float',		// propertyType
 
-								'someDatetime',	// propertyName
-								'datetime',		// propertyType
+			'someDatetime',	// propertyName
+			'datetime',		// propertyType
 
-								'',				// proceed to generate
-								'exit'			// exit command
-						  ));
+			'',				// proceed to generate
+			'exit'			// exit command
+		));
 		$this->controller->plantCommand();
 
 		$expectedModelClassName = '\Test\Package\Domain\Model\Basic';
@@ -68,19 +66,17 @@ class ModelTest extends BaseTest {
 	* @test
 	*/
 	public function createModelInSubdirectory() {
-		$this->interaction->expects($this->exactly(7))
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',	// Package
-								'model/create',	// What to do
-								'foo/bar/baz',	// modelName
+		$this->setAnswers(array(
+			'test.package',	// Package
+			'model/create',	// What to do
+			'foo/bar/baz',	// modelName
 
-								'someString',	// propertyName
-								'string',		// propertyType
+			'someString',	// propertyName
+			'string',		// propertyType
 
-								'',				// proceed to generate
-								'exit'			// exit command
-						  ));
+			'',				// proceed to generate
+			'exit'			// exit command
+		));
 		$this->controller->plantCommand();
 
 		$expectedModelClassName = '\Test\Package\Domain\Model\Foo\Bar\Baz';
@@ -146,27 +142,25 @@ class ModelTest extends BaseTest {
 		$relationTargetClassName = '\Test\Package\Domain\Model\ManyToOne\Target';
 		$expectedModelClassName = '\Test\Package\Domain\Model\ManyToOne\Source';
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\ManyToOne\SourceRepository';
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',		// Package
+		$this->setAnswers(array(
+			'test.package',		// Package
 
-								'model/create',		// What to do
-								'manyToOne/Target',	// modelName
-								'',					// proceed to generate
+			'model/create',		// What to do
+			'manyToOne/Target',	// modelName
+			'',					// proceed to generate
 
 
-								'model/create',				// What to do
-								'manyToOne/Source',			// modelName
-								'sourceItem',				// propertyName
-								'relation',					// propertyType
-								'many to one',				// relationType
-								$relationTargetClassName,	// targetclass
-								'targetItems',				// inversedBy
+			'model/create',				// What to do
+			'manyToOne/Source',			// modelName
+			'sourceItem',				// propertyName
+			'relation',					// propertyType
+			'many to one',				// relationType
+			$relationTargetClassName,	// targetclass
+			'targetItems',				// inversedBy
 
-								'',					// proceed to generate
-								'exit'				// exit command
-						  ));
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
 		$this->controller->plantCommand();
 
 		$this->assertClassExists($expectedRepositoryClassName);
@@ -193,27 +187,25 @@ class ModelTest extends BaseTest {
 		$relationTargetClassName = '\Test\Package\Domain\Model\OneToOne\Target';
 		$expectedModelClassName = '\Test\Package\Domain\Model\OneToOne\Source';
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToOne\SourceRepository';
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',		// Package
+		$this->setAnswers(array(
+			'test.package',		// Package
 
-								'model/create',		// What to do
-								'oneToOne/Target',	// modelName
-								'',					// proceed to generate
+			'model/create',		// What to do
+			'oneToOne/Target',	// modelName
+			'',					// proceed to generate
 
 
-								'model/create',				// What to do
-								'oneToOne/Source',			// modelName
-								'sourceItem',				// propertyName
-								'relation',					// propertyType
-								'one to one',				// relationType
-								$relationTargetClassName,	// targetclass
-								'targetItem',				// inversedBy
+			'model/create',				// What to do
+			'oneToOne/Source',			// modelName
+			'sourceItem',				// propertyName
+			'relation',					// propertyType
+			'one to one',				// relationType
+			$relationTargetClassName,	// targetclass
+			'targetItem',				// inversedBy
 
-								'',					// proceed to generate
-								'exit'				// exit command
-						  ));
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
 		$this->controller->plantCommand();
 
 		$this->assertClassExists($expectedRepositoryClassName);
@@ -238,26 +230,24 @@ class ModelTest extends BaseTest {
 		$relationTargetClassName = '\Test\Package\Domain\Model\ManyToMany\Target';
 		$expectedModelClassName = '\Test\Package\Domain\Model\ManyToMany\Source';
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\ManyToMany\SourceRepository';
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',		// Package
+		$this->setAnswers(array(
+			'test.package',		// Package
 
-								'model/create',		// What to do
-								'manyToMany/Target',// modelName
-								'',					// proceed to generate
+			'model/create',		// What to do
+			'manyToMany/Target',// modelName
+			'',					// proceed to generate
 
-								'model/create',				// What to do
-								'manyToMany/Source',		// modelName
-								'sourceItems',				// propertyName
-								'relation',					// propertyType
-								'many to many',				// relationType
-								$relationTargetClassName,	// targetclass
-								'targetItems',				// inversedBy
+			'model/create',				// What to do
+			'manyToMany/Source',		// modelName
+			'sourceItems',				// propertyName
+			'relation',					// propertyType
+			'many to many',				// relationType
+			$relationTargetClassName,	// targetclass
+			'targetItems',				// inversedBy
 
-								'',					// proceed to generate
-								'exit'				// exit command
-						  ));
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
 		$this->controller->plantCommand();
 
 		$this->assertClassExists($expectedRepositoryClassName);
@@ -286,22 +276,20 @@ class ModelTest extends BaseTest {
 		$relationTargetClassName = '\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity';
 		$expectedModelClassName = '\Test\Package\Domain\Model\OneToMany\Source';
 		$expectedRepositoryClassName = '\Test\Package\Domain\Repository\OneToMany\SourceRepository';
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',		// Package
+		$this->setAnswers(array(
+			'test.package',		// Package
 
-								'model/create',				// What to do
-								'oneToMany/Source',			// modelName
-								'sourceItems',				// propertyName
-								'relation',					// propertyType
-								'one to many',				// relationType
-								$relationTargetClassName,	// targetclass
-								'targetItem',				// mappedBy
+			'model/create',				// What to do
+			'oneToMany/Source',			// modelName
+			'sourceItems',				// propertyName
+			'relation',					// propertyType
+			'one to many',				// relationType
+			$relationTargetClassName,	// targetclass
+			'targetItem',				// mappedBy
 
-								'',					// proceed to generate
-								'exit'				// exit command
-						  ));
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
 		$this->controller->plantCommand();
 
 		$this->assertClassExists($expectedRepositoryClassName);

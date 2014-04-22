@@ -24,17 +24,15 @@ class ControllerTest extends BaseTest {
 	* @test
 	*/
 	public function createBasicController() {
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',
-								'controller',
-								'foo',
-								'index',
-								'fooBar',
-								'',
-								'exit'
-						  ));
+		$this->setAnswers(array(
+			'test.package',
+			'controller',
+			'foo',
+			'index',
+			'fooBar',
+			'',
+			'exit'
+		));
 		$this->controller->plantCommand();
 
 		$expectedControllerClassName = '\Test\Package\Controller\FooController';
@@ -57,17 +55,15 @@ class ControllerTest extends BaseTest {
 	* @test
 	*/
 	public function createControllerInSubdirectory() {
-		$this->interaction->expects($this->any())
-						  ->method('ask')
-						  ->will($this->onConsecutiveCalls(
-								'test.package',
-								'controller',
-								'bar/foo/guz',
-								'index',
-								'fooBar',
-								'',
-								'exit'
-						  ));
+		$this->setAnswers(array(
+			'test.package',
+			'controller',
+			'bar/foo/guz',
+			'index',
+			'fooBar',
+			'',
+			'exit'
+		));
 		$this->controller->plantCommand();
 
 		$expectedControllerClassName = '\Test\Package\Controller\Bar\Foo\GuzController';
