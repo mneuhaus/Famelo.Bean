@@ -45,11 +45,11 @@ class DefaultBean extends AbstractBean {
 			$builder = new $builderClassName($file);
 			$builder->injectInteraction($this->interaction);
 			if (isset($file['mode'])) {
-				$changes = call_user_method($file['mode'], $builder, $variables);
+				$changes = call_user_func(array($builder, $file['mode']), $variables);
 			} else {
             	$changes = $builder->plant($variables);
 			}
-			if ($this->silent === FALSE) {
+			if ($this->silent === FALSE && is_array($changes)) {
 				foreach ($changes as $change) {
 					$this->interaction->outputLine($change);
 				}
@@ -66,7 +66,6 @@ class DefaultBean extends AbstractBean {
 			$variable->interact();
 			$this->variables[$variableName] = $variable->getValue();
 		}
-		// var_dump($this->variables);
 	}
 
 	public function getVariableImplementation($variableType) {

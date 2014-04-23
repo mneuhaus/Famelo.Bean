@@ -58,7 +58,7 @@ class RuntimeReflectionService {
 		if (empty($this->fileNamesByClassName)) {
 			foreach ($this->packageManager->getAvailablePackages() as $package) {
 				foreach ($package->getClassFiles() as $fileClassName => $fileName) {
-					$this->fileNamesByClassName[$fileClassName] = $package->getClassesPath() . '' . $fileName;
+					$this->fileNamesByClassName[$fileClassName] = $package->getPackagePath() . '' . $fileName;
 				}
 			}
 		}

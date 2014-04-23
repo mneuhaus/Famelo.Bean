@@ -57,6 +57,28 @@ class ModelBuilder extends PhpBuilder {
 		}
 	}
 
+	public function append($variables = array()) {
+		$this->variables = $variables;
+		$className = $variables['className'];
+		$fileName = $this->reflectionService->getFilenameForClassName($className);
+
+		$properties = $variables['properties'];
+		unset($variables['properties']);
+
+		$parser = new Parser(new Lexer);
+		$statements = $parser->parse(file_get_contents($fileName));
+
+		foreach ($properties as $property) {
+			$this->addProperty($statements, $property);
+			$this->generateMappedBy($className, $property);
+		}
+
+		$code = $this->printCode($statements);
+
+		file_put_contents($fileName, $code);
+		return array('<info>Updated: ' . $fileName . '</info>');
+	}
+
 	public function addProperty($stmts, $property) {
 		$stmt = $this->getClass($stmts);
 		$properties = $this->getClassProperties($stmt);
@@ -134,13 +156,6 @@ class ModelBuilder extends PhpBuilder {
 		switch ($relation['type']) {
 			case 'OneToMany':
 				$reflection = new ReflectionClass($property['propertyType']['subtype']);
-				// var_dump(
-				// 	$reflection,
-				// 	$property['propertyType']['subtype'],
-				// 	$relation['mappedBy'],
-				// 	$reflection->hasProperty($relation['mappedBy']),
-				// 	$reflection->getFileName()
-				// );
 				if ($reflection->hasProperty($relation['mappedBy']) === FALSE) {
 					$this->addPropertiesToClass($reflection->getFileName(), array(
 						array(

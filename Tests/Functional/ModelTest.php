@@ -308,4 +308,29 @@ class ModelTest extends BaseTest {
 		$this->assertClassHasMethod($relationTargetClassName, 'setTargetItem');
 		$this->assertClassHasDocComment($relationTargetClassName, 'targetItem', '@ORM\ManyToOne(inversedBy="sourceItems")');
 	}
+
+	/**
+	* @test
+	* @group focus
+	*/
+	public function updateExistingEntity() {
+		$expectedModelClassName = '\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity';
+		$this->setAnswers(array(
+			'test.package',		// Package
+
+			'model/update',				// What to do
+			$expectedModelClassName,	// modelName
+
+			'someString',	// propertyName
+			'string',		// propertyType
+
+			'',					// proceed to generate
+			'exit'				// exit command
+		));
+		$this->controller->plantCommand();
+
+		$this->assertClassHasProperty($expectedModelClassName, 'someString', 'string');
+		$this->assertClassHasMethod($expectedModelClassName, 'getSomeString');
+		$this->assertClassHasMethod($expectedModelClassName, 'setSomeString');
+	}
 }

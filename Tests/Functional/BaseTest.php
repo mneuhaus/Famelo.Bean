@@ -42,8 +42,8 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		$this->controller  			= $this->objectManager->get('Famelo\Bean\Command\BeanCommandController');
 
 		$this->reflectionService	= $this->objectManager->get('Famelo\Bean\Reflection\RuntimeReflectionService');
-		$reflection = new \ReflectionClass('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity');
-		$this->reflectionService->addFilenameForClassName('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity', $reflection->getFileName());
+		$existingEntityFilename = FLOW_PATH_PACKAGES . 'Application/Famelo.Bean/Tests/Functional/Fixtures/ExistingEntity.php';
+		$this->reflectionService->addFilenameForClassName('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity', $existingEntityFilename);
 
 		$this->packagePath = FLOW_PATH_DATA . '/Temporary/Testing/Package/';
 		$this->reset();

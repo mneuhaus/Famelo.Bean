@@ -64,8 +64,6 @@ viewhelper:
 #                                                                        #
 'model/create':
   name: 'Model'
-  # implementation: '\Famelo\Bean\Bean\ModelBean'
-  grow: true
   variables:
     modelName:
       question: "Model name: "
@@ -85,6 +83,28 @@ viewhelper:
     -
       template: 'resource://Famelo.Bean/Private/Beans/Model/Repository.php'
       target: '{classesPath}/Domain/Repository/{modelName -> b:format.path()}Repository.php'
+
+#                                                                        #
+# Create a new Model                                                     #
+#                                                                        #
+'model/update':
+  name: 'update Model'
+  variables:
+    className:
+      question: "Model name: "
+      type: entity
+    properties:
+      type: repeater
+      variables:
+        propertyName:
+          question: "Please enter a name for the property (leave empty to continue)"
+        propertyType:
+          type: propertyType
+  files:
+    -
+      builder: '\Famelo\Bean\Builder\ModelBuilder'
+      mode: append
+      partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
 
 'neos/plugin':
   name: 'Neos Plugin'

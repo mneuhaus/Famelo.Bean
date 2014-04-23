@@ -28,9 +28,9 @@ Famelo:
     Variables:
       ask: '\Famelo\Bean\Variables\AskVariable'
       repeater: '\Famelo\Bean\Variables\RepeaterVariable'
-      properties: '\Famelo\Bean\Variables\PropertiesVariable'
       propertyType: '\Famelo\Bean\Variables\PropertyTypeVariable'
       static: '\Famelo\Bean\Variables\StaticVariable'
+      entity: '\Famelo\Bean\Variables\EntityVariable'
 
     PropertyTypes:
       string: 'string'
