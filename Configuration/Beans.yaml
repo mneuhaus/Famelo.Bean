@@ -106,6 +106,50 @@ viewhelper:
       mode: append
       partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
 
+#                                                                        #
+# Create a new Controller with specified Actions                         #
+#                                                                        #
+'authentication':
+  name: 'Authentication'
+  variables:
+    providerName:
+      question: "Please enter a short alphanumeric name for the Provider: "
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/LoginController.php'
+      target: '{classesPath}/Controller/LoginController.php'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/User.php'
+      target: '{classesPath}/Domain/Model/User.php'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/Command.php'
+      target: '{classesPath}/Command/{providerName -> b:format.ucfirst()}CommandController.php'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/Repository.php'
+      target: '{classesPath}/Domain/Repository/UserRepository.php'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/Login.html'
+      target: '{resourcesPath}/Private/Templates/Login/Index.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/Routes.yaml'
+      target: '{configurationPath}/Routes.yaml'
+      builder: '\Famelo\Bean\Builder\YamlBuilder'
+      mode: append
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/GlobalRoutes.yaml'
+      target: '{FLOW_PATH_CONFIGURATION}/Routes.yaml'
+      builder: '\Famelo\Bean\Builder\RouteBuilder'
+      mode: append
+      beforeRoute: 'Flow'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Authentication/Settings.yaml'
+      target: '{configurationPath}/Settings.yaml'
+      builder: '\Famelo\Bean\Builder\YamlBuilder'
+      mode: append
+
+#                                                                        #
+# Create a new Neos Plugin                                               #
+#                                                                        #
 'neos/plugin':
   name: 'Neos Plugin'
   variables:

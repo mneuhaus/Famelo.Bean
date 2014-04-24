@@ -58,6 +58,7 @@ class DefaultBean extends AbstractBean {
     }
 
 	public function fetchVariables() {
+    	$this->initialize();
 		foreach ($this->configuration['variables'] as $variableName => $variable) {
 			$variableType = isset($variable['type']) ? $variable['type'] : 'ask';
 			$variableImplementation = $this->getVariableImplementation($variableType);

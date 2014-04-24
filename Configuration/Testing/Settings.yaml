@@ -41,8 +41,8 @@ Famelo:
       relation: 'relation'
 
     DefaultVariables:
-      'FLOW_PATH_WEB': '%FLOW_PATH_WEB%'
-      'FLOW_PATH_ROOT': '%FLOW_PATH_ROOT%'
-      'FLOW_PATH_PACKAGES': '%FLOW_PATH_PACKAGES%'
-      'FLOW_PATH_DATA': '%FLOW_PATH_DATA%'
-      'FLOW_PATH_CONFIGURATION': '%FLOW_PATH_CONFIGURATION%'
+      'FLOW_PATH_WEB': '%FLOW_PATH_DATA%Temporary/Testing/Build/Web/'
+      'FLOW_PATH_ROOT': '%FLOW_PATH_DATA%Temporary/Testing/Build/'
+      'FLOW_PATH_PACKAGES': '%FLOW_PATH_DATA%Temporary/Testing/Build/Packages/'
+      'FLOW_PATH_DATA': '%FLOW_PATH_DATA%Temporary/Testing/Build/Data/'
+      'FLOW_PATH_CONFIGURATION': '%FLOW_PATH_DATA%Temporary/Testing/Build/Configuration/'

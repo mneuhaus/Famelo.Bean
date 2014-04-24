@@ -1,0 +1,11 @@
+TYPO3:
+  Flow:
+    security:
+      enable: TRUE
+      authentication:
+        providers:
+          {providerName -> b:format.ucfirst()}Provider:
+            provider: PersistedUsernamePasswordProvider
+            entryPoint: 'WebRedirect'
+            entryPointOptions:
+              uri: {providerName -> b:format.lowercase()}/login

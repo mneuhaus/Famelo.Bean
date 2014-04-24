@@ -1,0 +1,8 @@
+-
+  name: '{providerName -> b:format.ucfirst()}Provider'
+  uriPattern: '{providerName -> b:format.lowercase()}/<{providerName -> b:format.ucfirst()}Subroutes>'
+  defaults:
+    '@format': 'html'
+  subRoutes:
+    {providerName -> b:format.ucfirst()}Provider:
+      package: '{packageKey}'

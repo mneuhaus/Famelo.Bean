@@ -49,6 +49,7 @@ class AbstractBean {
 
 	/**
 	 * @var array
+	 * @Flow\Inject(setting="DefaultVariables")
 	 */
 	protected $variables;
 
@@ -64,46 +65,19 @@ class AbstractBean {
 	public function __construct($configuration, $package = NULL) {
 		$this->configuration = $configuration;
 		$this->package = $package;
-
-		if ($this->package instanceof Package) {
-			$this->variables = array(
-				'packageKey' => $package->getPackageKey(),
-				'namespace' => $package->getNamespace(),
-				'packagePath' => $package->getPackagePath(),
-				'classesPath' => $package->getClassesNamespaceEntryPath(),
-				'resourcesPath' => $package->getResourcesPath(),
-				'configurationPath' => $package->getConfigurationPath(),
-				'documentationPath' => $package->getDocumentationPath()
-			);
-		}
 	}
 
-    public function run() {
-        $this->fetchVariables();
-
-        foreach ($this->configuration['files'] as $file) {
-			$builderClassName = '\Famelo\Bean\Builder\FluidBuilder';
-			if (isset($file['builder'])) {
-				$builderClassName = $file['builder'];
-			}
-			$builder = new $builderClassName($file);
-			if (isset($file['mode'])) {
-				call_user_method($file['mode'], $builder, $file['template'], $file['target'], $this->variables);
-			} else {
-            	$builder->buildNew($file['template'], $file['target'], $this->variables);
-			}
-        }
-    }
-
-	public function fetchVariables() {
-		foreach ($this->configuration['variables'] as $variableName => $variable) {
-			switch (isset($variable['type']) ? $variable['type'] : 'ask') {
-				case 'ask':
-				default:
-						$this->variables[$variableName] = $this->ask('<q>' . $variable['question'] . '</q>' . chr(10));
-					break;
-			}
-			$this->interaction->outputLine();
+	public function initialize() {
+		if ($this->package instanceof Package) {
+			$this->variables = array_merge($this->variables, array(
+				'packageKey' => $this->package->getPackageKey(),
+				'namespace' => $this->package->getNamespace(),
+				'packagePath' => $this->package->getPackagePath(),
+				'classesPath' => $this->package->getClassesNamespaceEntryPath(),
+				'resourcesPath' => $this->package->getResourcesPath(),
+				'configurationPath' => $this->package->getConfigurationPath(),
+				'documentationPath' => $this->package->getDocumentationPath()
+			));
 		}
 	}
 

@@ -1,0 +1,8 @@
+-
+  name: 'Login'
+  uriPattern: 'login'
+  defaults:
+    '@format': 'html'
+    '@controller': 'Login'
+    '@action':     'index'
+    '@package': '{packageKey}'

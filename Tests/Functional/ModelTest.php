@@ -311,7 +311,6 @@ class ModelTest extends BaseTest {
 
 	/**
 	* @test
-	* @group focus
 	*/
 	public function updateExistingEntity() {
 		$expectedModelClassName = '\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity';

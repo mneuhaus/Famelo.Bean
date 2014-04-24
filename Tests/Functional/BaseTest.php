@@ -45,7 +45,8 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		$existingEntityFilename = FLOW_PATH_PACKAGES . 'Application/Famelo.Bean/Tests/Functional/Fixtures/ExistingEntity.php';
 		$this->reflectionService->addFilenameForClassName('\Famelo\Bean\Tests\Functional\Fixtures\ExistingEntity', $existingEntityFilename);
 
-		$this->packagePath = FLOW_PATH_DATA . '/Temporary/Testing/Package/';
+		$this->buildPath = FLOW_PATH_DATA . 'Temporary/Testing/Build';
+		$this->packagePath = FLOW_PATH_DATA . 'Temporary/Testing/Build/Package/';
 		$this->reset();
 
 		$this->interaction 			= $this->getMock('Famelo\Bean\Service\InteractionService');
@@ -98,8 +99,12 @@ abstract class BaseTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 		$this->properties = NULL;
 
 		if (is_dir($this->packagePath)) {
-			Files::emptyDirectoryRecursively($this->packagePath);
+			$tmpDir = $this->buildPath . '.' . time();
+			rename($this->buildPath, $this->buildPath . '.' . time());
+			Files::removeDirectoryRecursively($tmpDir);
 		}
+		Files::createDirectoryRecursively($this->packagePath);
+
 		$composerFileName = $this->packagePath . 'composer.json';
 		file_put_contents($composerFileName, '{
     "name": "test/package",
@@ -127,6 +132,19 @@ use Doctrine\ORM\Mapping as ORM;
 class ExistingEntity {
 
 }');
+
+		$globalRoutes = $this->buildPath . '/Configuration/Routes.yaml';
+		Files::createDirectoryRecursively(dirname($globalRoutes));
+		file_put_contents($globalRoutes, '
+-
+  name: Flow
+  uriPattern: \'<FlowSubroutes>\'
+  defaults:
+    \'@format\': html
+  subRoutes:
+    FlowSubroutes:
+      package: TYPO3.Flow
+');
 
 	}
 
@@ -200,6 +218,58 @@ class ExistingEntity {
 		$this->assertTrue(isset($policy['resources']['methods'][$policyName]), 'Policy "' . $policyName . '" does not exist');
 
 		$this->assertEquals($policy['resources']['methods'][$policyName], $policyDefinition);
+	}
+
+	public function assertRouteEquals($routeFile, $routeName, $routeDefinition) {
+		$this->assertFileExists($routeFile);
+		$routes = Yaml::parse(file_get_contents($routeFile));
+
+		foreach ($routes as $route) {
+			if ($route['name'] === $routeName) {
+				$this->assertEquals($route, $routeDefinition);
+				return;
+			}
+		}
+		$this->fail('Route "' . $routeName . '" does not exist');
+	}
+
+	public function assertRouteOrder($routeFile, $firstRoute, $secondRoute) {
+		$this->assertFileExists($routeFile);
+		$routes = Yaml::parse(file_get_contents($routeFile));
+
+		$firstRouteFound = FALSE;
+		$secondRouteFound = FALSE;
+		foreach ($routes as $route) {
+			if ($route['name'] === $firstRoute) {
+				$firstRouteFound = TRUE;
+			}
+			if ($route['name'] === $secondRoute) {
+				if ($firstRouteFound === FALSE) {
+					$this->fail('Route "' . $firstRoute . '" comes before "' . $secondRoute . '"');
+				}
+				$secondRouteFound = TRUE;
+			}
+		}
+		if ($firstRouteFound === FALSE) {
+			$this->fail('Route "' . $firstRoute . '" not found');
+		}
+		if ($secondRouteFound === FALSE) {
+			$this->fail('Route "' . $secondRoute . '" not found');
+		}
+	}
+
+	public function assertSettings($settingsFile, $settingsPath, $settingsDefinition) {
+		$this->assertFileExists($settingsFile);
+		$settings = Yaml::parse(file_get_contents($settingsFile));
+
+		$parts = explode('.', $settingsPath);
+		foreach ($parts as $part) {
+			$this->assertTrue(isset($settings[$part]),
+				'Settings Path "' . $settingsPath . '" does not exist');
+			$settings = $settings[$part];
+		}
+
+		$this->assertEquals($settings, $settingsDefinition);
 	}
 
 	public function assertNodeTypeExists($nodeTypesFile, $nodeTypeName) {
