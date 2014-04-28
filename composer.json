@@ -3,7 +3,9 @@
     "type": "typo3-flow-package",
     "description": "Code generation package for TYPO3.Flow",
     "require": {
-        "typo3/flow": "*"
+        "typo3/flow": "*",
+        "famelo/common": "*",
+        "nikic/php-parser": "*"
     },
     "autoload": {
         "psr-0": {
