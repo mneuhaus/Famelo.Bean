@@ -184,3 +184,29 @@ viewhelper:
     template:
       template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
       target: '{resourcesPath}/Private/Templates/{controllerName -> k:format.ucfirst()}/Index.html'
+
+#                                                                        #
+# Create a new UnitTestCase                                              #
+#                                                                        #
+UnitTestCase:
+  name: 'UnitTestCase'
+  variables:
+    testCaseName:
+      question: "Please enter a name for the UnitTestCase: "
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Test/UnitTestCase.php'
+      target: '{packagePath}/Tests/Unit/{testCaseName -> b:format.path()}Test.php'
+
+#                                                                        #
+# Create a new FunctionalTestCase                                        #
+#                                                                        #
+FunctionalTestCase:
+  name: 'FunctionalTestCase'
+  variables:
+    testCaseName:
+      question: "Please enter a name for the FunctionalTestCase: "
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Test/FunctionalTestCase.php'
+      target: '{packagePath}/Tests/Functional/{testCaseName -> b:format.path()}Test.php'

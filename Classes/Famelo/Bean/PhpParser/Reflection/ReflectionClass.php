@@ -40,17 +40,20 @@ class ReflectionClass extends \Famelo\Bean\PhpParser\Wrapper {
 	 */
 	protected $methods;
 
-	public function __construct($className) {
+	public function __construct($className, $fileName = NULL) {
 		$reflection = new \ReflectionClass($className);
 		$this->className = $className;
+		$this->fileName = $fileName;
 	}
 
 	public function initialize() {
 		if ($this->fileName === NULL) {
 			$this->fileName = $this->reflectionService->getFilenameForClassName($this->className);
 			if ($this->fileName === NULL) {
-				$this->fileName = FLOW_PATH_DATA . '/Temporary/Testing/Package/Classes/' . str_replace('\\', '/', $this->className) . '.php';
+				$this->fileName = FLOW_PATH_DATA . '/Temporary/Testing/Build/Package/Classes/' . str_replace('\\', '/', $this->className) . '.php';
 			}
+		}
+		if ($this->statements === NULL) {
 			$parser = new Parser(new Lexer);
 			$this->statements = $parser->parse(file_get_contents($this->fileName));
 			$this->properties = $this->getProperties();

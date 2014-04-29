@@ -176,16 +176,21 @@ class ExistingEntity {
         }));
 	}
 
-	public function assertClassExists($className) {
-		$classPath = '/Classes/' . str_replace('\\', '/', $className) . '.php';
-		$this->assertFileExists($this->packagePath . $classPath);
+	public function assertClassExists($className, $classFileName = NULL) {
+		if ($classFileName === NULL) {
+			$classFileName = '/Classes/' . str_replace('\\', '/', $className) . '.php';
+		}
+		$this->assertFileExists($this->packagePath . $classFileName);
 
-		require_once($this->packagePath . $classPath);
+		require_once($this->packagePath . $classFileName);
 		$this->assertTrue(class_exists($className), '"' . $className . '" does not exists');
 	}
 
-	public function assertClassHasProperty($className, $propertyName, $propertyType) {
-		$reflection = new ReflectionClass($className);
+	public function assertClassHasProperty($className, $propertyName, $propertyType, $fileName = NULL) {
+		if ($fileName !== NULL) {
+			$fileName = $this->packagePath . $fileName;
+		}
+		$reflection = new ReflectionClass($className, $fileName);
 		$this->assertTrue($reflection->hasProperty($propertyName),
 			'"' . $className . '::$' . $propertyName . '" not found'
 		);
@@ -196,16 +201,22 @@ class ExistingEntity {
 		);
 	}
 
-	public function assertClassHasDocComment($className, $propertyName, $docComment) {
-		$reflection = new ReflectionClass($className);
+	public function assertClassHasDocComment($className, $propertyName, $docComment, $fileName = NULL) {
+		if ($fileName !== NULL) {
+			$fileName = $this->packagePath . $fileName;
+		}
+		$reflection = new ReflectionClass($className, $fileName);
 		$property = $reflection->getProperty($propertyName);
 		$this->assertTrue(stristr($property->getDocComment(), $docComment) !== FALSE,
 			'"' . $className . '::$' . $propertyName . '" does not have "' . $docComment . '"'
 		);
 	}
 
-	public function assertClassHasMethod($className, $methodName) {
-		$reflection = new ReflectionClass($className);
+	public function assertClassHasMethod($className, $methodName, $fileName = NULL) {
+		if ($fileName !== NULL) {
+			$fileName = $this->packagePath . $fileName;
+		}
+		$reflection = new ReflectionClass($className, $fileName);
 		$this->assertTrue($reflection->hasMethod($methodName),
 			'"' . $className . '::$' . $methodName . '()" not found'
 		);
