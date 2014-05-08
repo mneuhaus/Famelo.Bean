@@ -31,8 +31,9 @@ class RepeaterVariable extends AbstractVariable {
 			$variable->interact();
 			$variables[$variableName] = $variable->getValue();
 
+			$value = $variable->getValue();
 			if ($isFirst === TRUE) {
-				if (empty($variable->getValue())) {
+				if (empty($value)) {
 					return FALSE;
 				}
 				$isFirst = FALSE;
