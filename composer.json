@@ -5,7 +5,8 @@
     "require": {
         "typo3/flow": "*",
         "famelo/common": "*",
-        "nikic/php-parser": "*"
+        "nikic/php-parser": "*",
+        "typo3/kickstart": "*"
     },
     "autoload": {
         "psr-0": {
