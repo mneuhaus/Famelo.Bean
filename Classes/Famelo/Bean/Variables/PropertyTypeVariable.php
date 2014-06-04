@@ -46,7 +46,14 @@ class PropertyTypeVariable extends AbstractVariable {
 		$property['relationType'] = $type;
 		$property['docComments'] = array();
 
-		$modelName = lcfirst($this->previousVariables['modelName']);
+		if (isset($this->previousVariables['className'])) {
+			$this->previousVariables['modelName'] = preg_replace('/.+\\\\([^\\\\]*)$/', '$1', $this->previousVariables['className']);
+		}
+		if (isset($this->previousVariables['modelName'])) {
+			$modelName = lcfirst($this->previousVariables['modelName']);
+		} else {
+			$modelName = '';
+		}
 
 		switch ($type) {
 			case 'one to one':
