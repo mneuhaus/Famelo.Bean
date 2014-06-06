@@ -116,7 +116,7 @@ class InteractionService {
             $ret = '';
 
             $i = 0;
-            $ofs = -1;
+            $ofs = 0;
             $matches = $autocomplete;
             $numMatches = count($matches);
 
@@ -131,6 +131,24 @@ class InteractionService {
             // Read a keypress
             while (!feof($inputStream)) {
                 $c = fread($inputStream, 1);
+
+                $numMatches = 0;
+
+                $unorderedMatches = array();
+                foreach ($autocomplete as $value) {
+                    // If typed characters match the beginning chunk of value (e.g. [AcmeDe]moBundle)
+                    $similarity = \Famelo\StringScore\String::score($value, $ret, 0.5);
+                    if ($similarity > 0.1) {
+                        $unorderedMatches[($similarity * 100) + $numMatches++] = $value;
+                    }
+                }
+
+                krsort($unorderedMatches);
+                $numMatches = 0;
+                $matches = array();
+                foreach ($unorderedMatches as $value) {
+                    $matches[$numMatches++] = $value;
+                }
 
                 // Backspace Character
                 if ("\177" === $c) {
@@ -177,25 +195,6 @@ class InteractionService {
                     $i++;
                 }
 
-                $numMatches = 0;
-
-                $unorderedMatches = array();
-                foreach ($autocomplete as $value) {
-                    // If typed characters match the beginning chunk of value (e.g. [AcmeDe]moBundle)
-                    $similarity = similar_text($value, $ret);
-                    if ($similarity > 0) {
-                        $unorderedMatches[($similarity * 100) + $numMatches++] = $value;
-                    }
-                }
-
-                krsort($unorderedMatches);
-                $numMatches = 0;
-                $ofs = 0;
-                $matches = array();
-                foreach ($unorderedMatches as $value) {
-                    $matches[$numMatches++] = $value;
-                }
-
                 // Erase characters from cursor to end of line
                 $this->output->write("\033[K");
 
@@ -205,11 +204,13 @@ class InteractionService {
                     // Write highlighted text
                     $offset = 0;
                     $match = $matches[$ofs];
-                    foreach(str_split($ret) as $value) {
-                        $pos = strpos($match, $value, $offset);
-                        if ($pos !== FALSE) {
-                            $match = substr_replace($match, '<<' . $value . '>>', $pos, 1);
-                            $offset = $pos + 4;
+                    if (strlen($ret) > 0) {
+                        foreach(str_split($ret) as $value) {
+                            $pos = strpos($match, $value, $offset);
+                            if ($pos !== FALSE) {
+                                $match = substr_replace($match, '<<' . $value . '>>', $pos, 1);
+                                $offset = $pos + 4;
+                            }
                         }
                     }
                     $match = str_replace('<<', '<hl>', $match);

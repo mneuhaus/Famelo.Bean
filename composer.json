@@ -6,7 +6,8 @@
         "typo3/flow": "*",
         "famelo/common": "*",
         "nikic/php-parser": "*",
-        "typo3/kickstart": "*"
+        "typo3/kickstart": "*",
+        "famelo/string-score": "*"
     },
     "autoload": {
         "psr-0": {
