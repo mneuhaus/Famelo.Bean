@@ -58,6 +58,12 @@ class AbstractBean {
 	 */
 	protected $controller;
 
+	/**
+	 * @var \Famelo\Bean\Fluid\KickstartView
+	 * @Flow\Inject
+	 */
+	protected $view;
+
 	public function injectInteraction($interaction) {
 		$this->interaction = $interaction;
 	}
@@ -79,9 +85,5 @@ class AbstractBean {
 				'documentationPath' => $this->package->getDocumentationPath()
 			));
 		}
-	}
-
-	public function getVariables() {
-		return $this->variables;
 	}
 }

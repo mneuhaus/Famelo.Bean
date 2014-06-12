@@ -17,6 +17,7 @@ use PhpParser\Parser;
 use PhpParser\Template;
 use PhpParser\printer\Standard;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Reflection\ClassSchema;
 use TYPO3\Flow\Utility\Files;
 
 /**
@@ -44,8 +45,16 @@ class ModelBuilder extends PhpBuilder {
 		}
 
 		$code = $this->printCode($statements);
+		$className = $this->getClassName($statements);
 		$this->reflectionService->addClassNameForAnnotation('\TYPO3\Flow\Annotations\Entity', ltrim($this->getClassName($statements), '\\'));
-		$this->reflectionService->addFilenameForClassName($this->getClassName($statements), $target);
+		$this->reflectionService->addFilenameForClassName($className, $target);
+
+		$classSchema = new ClassSchema($className);
+		foreach ($properties as $property) {
+			$classSchema->addProperty($property['propertyName'], $property['propertyType']['type']);
+		}
+
+		$this->reflectionService->addClassSchema($classSchema);
 
 		if (!is_dir(dirname($target))) {
 			Files::createDirectoryRecursively(dirname($target));
@@ -62,6 +71,7 @@ class ModelBuilder extends PhpBuilder {
 		$className = $variables['className'];
 		$fileName = $this->reflectionService->getFilenameForClassName($className);
 
+		$variables['modelName'] = preg_replace('/.+\\\\([^\\\\]*)$/', '$1', $variables['className']);
 		$properties = $variables['properties'];
 		unset($variables['properties']);
 

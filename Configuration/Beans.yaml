@@ -1,7 +1,7 @@
 #                                                                        #
 # Create a new Controller with specified Actions                         #
 #                                                                        #
-controller:
+actionController:
   name: 'Controller'
   variables:
     controllerName:
@@ -22,6 +22,44 @@ controller:
         -
           template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
           target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/{actionName -> k:format.ucfirst()}.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Policy.yaml'
+      target: '{configurationPath}/Policy.yaml'
+      builder: '\Famelo\Bean\Builder\PolicyBuilder'
+      mode: append
+
+#                                                                        #
+# Create a new crud Controller                                           #
+#                                                                        #
+crud:
+  name: 'crud'
+  variables:
+    controllerName:
+      question: "Controller name: "
+    modelClassName:
+      question: "Model name: "
+      type: entity
+    modelNameProperty:
+      question: "Property used for displaying the model in the list view: "
+  aliases:
+    modelName: '{modelClassName -> b:format.objectName() -> b:format.lcfirst()}'
+    repositoryClassName: '{modelClassName -> b:entity.repositoryClassName()}'
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Crud/Controller.php'
+      target: '{classesPath}/Controller/{controllerName -> b:format.path()}Controller.php'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Crud/Index.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/Index.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Crud/New.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/New.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Crud/Edit.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/Edit.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Crud/Show.html'
+      target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/Show.html'
     -
       template: 'resource://Famelo.Bean/Private/Beans/Controller/Policy.yaml'
       target: '{configurationPath}/Policy.yaml'

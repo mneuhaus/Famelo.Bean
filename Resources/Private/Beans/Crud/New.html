@@ -1,0 +1,14 @@
+<p>Just fill out the following form to create a new {modelName -> k:inflect.humanizeCamelCase(lowercase: true)}:</p>
+
+<![CDATA[<f:form action="create"]]> objectName="new{modelName -> k:format.ucfirst()}">
+	<ol><f:for each="{modelClassName -> b:model.properties()}" as="property" key="propertyName">
+		<li>
+			<label for="{propertyName}">{propertyName -> k:inflect.humanizeCamelCase()}</label>
+			{property -> f:format.raw()}
+		</li>
+	</f:for>
+		<li>
+			<![CDATA[<f:form.submit value="Create" />
+		</li>
+	</ol>
+</f:form>]]>

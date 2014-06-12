@@ -14,20 +14,8 @@ namespace Famelo\Bean\ViewHelpers\Format;
 use TYPO3\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Wrapper for PHPs ucfirst function.
- * @see http://www.php.net/manual/en/ucfirst
- *
- * = Examples =
- *
- * <code title="Example">
- * {textWithMixedCase -> k:ucfirst()}
- * </code>
- *
- * Output:
- * TextWithMixedCase
- *
  */
-class ObjectNameViewHelper extends AbstractViewHelper {
+class LcfirstViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Uppercase first character
@@ -35,12 +23,6 @@ class ObjectNameViewHelper extends AbstractViewHelper {
 	 * @return string The altered string.
 	 */
 	public function render() {
-		$content = $this->renderChildren();
-		if (stristr($content, '\\')) {
-			$parts = explode('\\', $content);
-		} else {
-			$parts = explode('/', $content);
-		}
-		return ucfirst(end($parts));
+		return lcfirst($this->renderChildren());
 	}
 }

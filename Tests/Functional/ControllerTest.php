@@ -26,7 +26,7 @@ class ControllerTest extends BaseTest {
 	public function createBasicController() {
 		$this->setAnswers(array(
 			'test.package',
-			'controller',
+			'actionController',
 			'foo',
 			'index',
 			'fooBar',
@@ -57,7 +57,7 @@ class ControllerTest extends BaseTest {
 	public function createControllerInSubdirectory() {
 		$this->setAnswers(array(
 			'test.package',
-			'controller',
+			'actionController',
 			'bar/foo/guz',
 			'index',
 			'fooBar',

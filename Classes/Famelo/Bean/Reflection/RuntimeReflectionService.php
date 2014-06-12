@@ -73,4 +73,29 @@ class RuntimeReflectionService {
 		$this->getFilenameForClassName($className);
 		$this->fileNamesByClassName[$className] = $fileName;
 	}
+
+	/**
+	 * @var array
+	 */
+	protected $runtimeClassSchemata = array();
+
+	public function addClassSchema($classSchema) {
+		$className = ltrim($classSchema->getClassName(), '\\');
+		$this->runtimeClassSchemata[$className] = $classSchema;
+	}
+
+	/**
+	 * Returns the class schema for the given class
+	 *
+	 * @param mixed $className The class name or an object
+	 * @return \TYPO3\Flow\Reflection\ClassSchema
+	 */
+	public function getClassSchema($className) {
+		$className = ltrim($className, '\\');
+		if (isset($this->runtimeClassSchemata[$className])) {
+			return $this->runtimeClassSchemata[$className];
+		}
+
+		return $this->reflectionService->getClassSchema($className);
+	}
 }

@@ -67,6 +67,12 @@ class DefaultBean extends AbstractBean {
 			$variable->interact();
 			$this->variables[$variableName] = $variable->getValue();
 		}
+		if (isset($this->configuration['aliases'])) {
+			$this->view->assignMultiple($this->variables);
+			foreach ($this->configuration['aliases'] as $alias => $definition) {
+				$this->variables[$alias] = $this->view->renderString($definition);
+			}
+		}
 	}
 
 	public function getVariableImplementation($variableType) {

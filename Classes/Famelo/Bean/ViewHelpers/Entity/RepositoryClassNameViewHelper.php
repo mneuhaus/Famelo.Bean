@@ -1,5 +1,5 @@
 <?php
-namespace Famelo\Bean\ViewHelpers\Format;
+namespace Famelo\Bean\ViewHelpers\Entity;
 
 /*                                                                        *
  * This script belongs to the TYPO3 Flow package "TYPO3.Kickstart".       *
@@ -11,23 +11,19 @@ namespace Famelo\Bean\ViewHelpers\Format;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Reflection\ClassSchema;
 use TYPO3\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Wrapper for PHPs ucfirst function.
- * @see http://www.php.net/manual/en/ucfirst
- *
- * = Examples =
- *
- * <code title="Example">
- * {textWithMixedCase -> k:ucfirst()}
- * </code>
- *
- * Output:
- * TextWithMixedCase
- *
  */
-class ObjectNameViewHelper extends AbstractViewHelper {
+class RepositoryClassNameViewHelper extends AbstractViewHelper {
+
+	/**
+	 * @var \TYPO3\Flow\Reflection\ReflectionService
+	 * @Flow\Inject
+	 */
+	protected $reflectionService;
 
 	/**
 	 * Uppercase first character
@@ -35,12 +31,11 @@ class ObjectNameViewHelper extends AbstractViewHelper {
 	 * @return string The altered string.
 	 */
 	public function render() {
-		$content = $this->renderChildren();
-		if (stristr($content, '\\')) {
-			$parts = explode('\\', $content);
-		} else {
-			$parts = explode('/', $content);
+		$className = $this->renderChildren();
+		$classSchema = $this->reflectionService->getClassSchema($className);
+		if ($classSchema instanceof ClassSchema) {
+			return $classSchema->getRepositoryClassName();
 		}
-		return ucfirst(end($parts));
+		return preg_replace('/Domain\\\\Model\\\\(.*)/', 'Domain\\\\Repository\\\\$1Repository', $className);
 	}
 }
