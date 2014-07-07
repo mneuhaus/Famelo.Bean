@@ -1,0 +1,10 @@
+<f:for each="{models}" as="modelName" key="modelClass">
+	<div class="media">
+		<f:link.action action="edit" arguments="{model: modelClass}" addQueryString="1">
+		  <div class="media-body">
+		    <h4 class="media-heading">{modelName}</h4>
+		    <small>\{modelClass}</small>
+		  </div>
+		</f:link.action>
+	</div>
+</f:for>

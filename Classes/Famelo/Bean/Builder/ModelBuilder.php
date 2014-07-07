@@ -89,6 +89,115 @@ class ModelBuilder extends PhpBuilder {
 		return array('<info>Updated: ' . $fileName . '</info>');
 	}
 
+	public function update($source, $variables = array()) {
+		$this->variables = $variables;
+		$className = $source;
+		$fileName = $this->getFilename($className);
+
+		$variables['modelName'] = preg_replace('/.+\\\\([^\\\\]*)$/', '$1', $variables['className']);
+		$properties = $variables['properties'];
+		unset($variables['properties']);
+
+		$parser = new Parser(new Lexer);
+		$statements = $parser->parse(file_get_contents($fileName));
+
+		foreach ($properties as $propertyName => $property) {
+			if (isset($property['propertyType']['relation']) && empty($property['propertyType']['relation'])) {
+				unset($property['propertyType']['relation']);
+			}
+			$property['propertyIdentifier'] = $propertyName;
+
+			if (isset($property['removed']) && $property['removed'] == 1) {
+				$this->removePropertyAndMethods($this->getClass($statements), $property);
+				continue;
+			}
+
+			$this->setProperty($statements, $property);
+			$this->generateMappedBy($className, $property);
+		}
+
+		$code = $this->printCode($statements);
+
+		file_put_contents($fileName, $code);
+		return array('<info>Updated: ' . $fileName . '</info>');
+	}
+
+	public function getFilename($className) {
+		return $this->reflectionService->getFilenameForClassName($className);
+	}
+
+	public function removePropertyAndMethods($stmt, $property) {
+		if ($this->hasProperty($property['propertyIdentifier'], $stmt)) {
+			$this->removeProperty($property['propertyIdentifier'], $stmt);
+		}
+
+		$methods = array(
+			'get', 'set', 'add', 'remove'
+		);
+		foreach ($methods as $method) {
+			$existingMethodName = $method . ucfirst($property['propertyIdentifier']);
+			if ($this->hasMethod($existingMethodName, $stmt)) {
+				$this->removeMethod($existingMethodName, $stmt);
+			}
+		}
+	}
+
+	public function setProperty($stmts, $property) {
+		$stmt = $this->getClass($stmts);
+		$properties = $this->getClassProperties($stmt);
+		$classMethods = $this->getClassMethods($stmt);
+
+		$methods = array(
+			'get', 'set', 'add', 'remove'
+		);
+
+		$propertyName = $property['propertyName'];
+		$propertyType = $property['propertyType']['type'];
+		$propertySubType = isset($property['propertySubtype']) ? $property['propertySubtype'] : NULL;
+
+		if ($this->hasProperty($property['propertyIdentifier'], $stmt)) {
+			$this->removePropertyAndMethods($stmt, $property);
+		}
+
+		$partial = 'Properties/Basic';
+
+		$propertyNode = $this->getPartial($partial, array(
+			'name' 	=> $propertyName,
+			'type' 	=> $propertyType,
+			'docComment' => isset($property['propertyType']['relation']) ? $this->generateDocComment($property['propertyType']['relation']) : ''
+		));
+		$stmt->stmts = array_merge($stmt->stmts, $propertyNode);
+
+		foreach ($methods as $method) {
+			$methodName = $method . ucfirst($propertyName);
+
+			if ($method == 'add' || $method == 'remove') {
+				if (stristr($propertyType, '<') !== FALSE) {
+					$method = $method . 'Collection';
+				} else if(substr($propertyType, 0, 5) === 'array') {
+					$method = $method . 'Array';
+				} else {
+					continue;
+				}
+
+				$singularPropertName = Inflector::singularize($propertyName);
+
+				$methodNode = $this->getPartial('Methods/' . ucfirst($method), array(
+					'name' 	=> $propertyName,
+					'singular' => $singularPropertName,
+					'type' 	=> $propertySubType
+				));
+				$stmt->stmts = array_merge($stmt->stmts, $methodNode);
+			} else {
+				$methodNode = $this->getPartial('Methods/' . ucfirst($method), array(
+					'name' 	=> $propertyName,
+					'type' 	=> $propertyType
+				));
+				$stmt->stmts = array_merge($stmt->stmts, $methodNode);
+			}
+		}
+	}
+
 	public function addProperty($stmts, $property) {
 		$stmt = $this->getClass($stmts);
 		$properties = $this->getClassProperties($stmt);

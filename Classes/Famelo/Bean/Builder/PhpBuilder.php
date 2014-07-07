@@ -98,20 +98,48 @@ class PhpBuilder extends AbstractBuilder {
 		$properties = array();
 		foreach ($stmt->stmts as $classStmt) {
 			if ($classStmt instanceof \PhpParser\Node\Stmt\Property) {
-				$properties[] = $classStmt;
+				$properties[$classStmt->props[0]->name] = $classStmt;
 			}
 		}
 		return $properties;
 	}
 
+	public function hasProperty($propertyName) {
+		$properties = $this->getClassProperties($this->classStatement);
+		return isset($properties[$propertyName]);
+	}
+
+	public function removeProperty($propertyName) {
+		$properties = $this->getClassProperties($this->classStatement);
+		$propertyStatement = $properties[$propertyName];
+		$key = array_search($propertyStatement, $this->classStatement->stmts);
+		if ($key !== FALSE) {
+			unset($this->classStatement->stmts[$key]);
+		}
+	}
+
 	public function getClassMethods($stmt) {
 		$classMethods = array();
 		foreach ($stmt->stmts as $classStmt) {
-					if ($classStmt instanceof \PhpParser\Node\Stmt\ClassMethod) {
-						$classMethods[$classStmt->name] = $classStmt;
-					}
+			if ($classStmt instanceof \PhpParser\Node\Stmt\ClassMethod) {
+				$classMethods[$classStmt->name] = $classStmt;
+			}
 		}
 		return $classMethods;
+	}
+
+	public function hasMethod($methodName) {
+		$methods = $this->getClassMethods($this->classStatement);
+		return isset($methods[$methodName]);
+	}
+
+	public function removeMethod($methodName) {
+		$methods = $this->getClassMethods($this->classStatement);
+		$methodStatement = $methods[$methodName];
+		$key = array_search($methodStatement, $this->classStatement->stmts);
+		if ($key !== FALSE) {
+			unset($this->classStatement->stmts[$key]);
+		}
 	}
 
 	public function getClass($stmts) {

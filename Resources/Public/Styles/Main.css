@@ -1,0 +1,82 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+body > pre:first-child {
+  margin-top: 30px;
+}
+body > pre {
+  margin-left: 290px;
+  margin-right: 40px;
+}
+
+.layout {
+  padding-left: 250px;
+  position: relative;
+}
+
+aside {
+  position: fixed;
+  top: 50px;
+  bottom: 0;
+  overflow: auto;
+}
+
+aside {
+  margin-left: -250px;
+  width: 250px;
+  height: 100%;
+  border-right: 1px solid #ddd;
+}
+
+aside > div {
+  padding: 0.9em 1em;
+  border-bottom: 1px solid #ddd;
+}
+
+section.main {
+  position: static;
+  margin: 0;
+  padding: 0;
+  top: 33%;
+  right: 0;
+  bottom: 0;
+  left: 150px;
+  overflow: auto;
+  width: auto;
+}
+
+aside .media a{
+  text-decoration: none;
+  color: inherit;
+}
+
+.media {
+  margin: 0;
+}
+
+.media:hover {
+  background: #eee;
+}
+
+.media small {
+  font-size: 10px;
+  color: #777;
+}
+
+section.main {
+  padding: 40px;
+}
+
+tr.template {
+  display: none;
+}
+
+tr.unused button{
+  display: none;
+}

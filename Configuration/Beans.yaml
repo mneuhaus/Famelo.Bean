@@ -102,6 +102,7 @@ viewhelper:
 #                                                                        #
 'model/create':
   name: 'Model'
+  group: model
   variables:
     modelName:
       question: "Model name: "
@@ -127,6 +128,7 @@ viewhelper:
 #                                                                        #
 'model/update':
   name: 'update Model'
+  group: model
   variables:
     className:
       question: "Model name: "

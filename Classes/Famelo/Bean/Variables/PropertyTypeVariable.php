@@ -12,6 +12,11 @@ class PropertyTypeVariable extends AbstractVariable {
 	 */
 	protected $propertyTypes;
 
+	/**
+	 * @var string
+	 */
+	protected $partial = 'PropertyType';
+
 	public function interact() {
 		$type = $this->chooseFieldType();
 
@@ -118,5 +123,30 @@ class PropertyTypeVariable extends AbstractVariable {
 			TRUE
 		);
 		return $this->propertyTypes[$choice];
+	}
+
+	public function getOptions() {
+		return $this->propertyTypes;
+	}
+
+	public function getRelationTypes() {
+		return array(
+			'',
+			'oneToOne' => 'one to one',
+			'oneToMany' =>'one to many',
+			'manyToOne' =>'many to one',
+			'manyToMany' =>'many to many'
+		);
+	}
+
+	public function getEntityOptions() {
+		$classNames = $this->reflectionService->getClassNamesByAnnotation('\TYPO3\Flow\Annotations\Entity');
+		$choices = array('');
+		foreach ($classNames as $key => $className) {
+			$choices[$className] = $className;
+		}
+		asort($choices);
+
+		return $choices;
 	}
 }

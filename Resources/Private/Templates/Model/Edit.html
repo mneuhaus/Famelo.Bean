@@ -1,0 +1,17 @@
+<f:layout name="Default" />
+
+<f:section name="Main">
+<f:form action="save" addQueryString="1">
+	<f:form.hidden name="source" value="{source}" />
+	<f:for each="{variables}" as="variable">
+		<div class="form-group">
+			<label>{variable.label}</label>
+			<f:render partial="Variables/{variable.partial}" arguments="{variable: variable}" />
+		</div>
+	</f:for>
+	<div class="form-group">
+		<!-- 	<button class="btn btn-primary action-add">Add Property</button> -->
+		<f:form.submit value="Save" class="btn btn-default pull-right" />
+	</div>
+</f:form>
+</f:section>

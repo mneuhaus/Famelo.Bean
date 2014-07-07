@@ -1,0 +1,66 @@
+<table class="table table-bordered table-striped">
+	<tr>
+		<th>Name</th>
+		<th>Type</th>
+		<th></th>
+	</tr>
+	<f:for each="{variable.rows}" as="row">
+	<tr class="property">
+		<f:for each="{row.variables}" as="childVariable">
+			<td class="variable">
+				<f:render partial="Variables/{childVariable.partial}" arguments="{variable: childVariable}" />
+			</td>
+		</f:for>
+		<td>
+			<button class="btn btn-danger action-remove">Remove</button>
+			<f:form.hidden name="{row.formName}[removed]" class="input-removed" value="0" />
+		</td>
+	</tr>
+	</f:for>
+
+	<tr class="template property">
+		<f:for each="{variable.template.variables}" as="templateVariable">
+			<td>
+				<f:render partial="Variables/{templateVariable.partial}" arguments="{variable: templateVariable}" />
+			</td>
+		</f:for>
+		<td>
+			<button class="btn btn-danger action-remove">Remove</button>
+		</td>
+	</tr>
+</table>
+<div class="removed">
+
+</div>
+
+
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$(document).on( "keyup", ".unused input", function() {
+			$('.unused').removeClass('unused');
+  			addUnused();
+		});
+
+		function addUnused() {
+			var e = $('.template').clone();
+			e.removeClass('template');
+			e.addClass('unused');
+			e.html(e.html().replace(/--template--/g, Math.random().toString(36).slice(2)));
+			$('.table').append(e);
+		}
+		addUnused();
+
+		$(document).on("click", ".action-remove", function() {
+			var row = $(this).parents('tr');
+			row.find('.input-removed').val(1);
+			$('.removed').append(row.find('.input-removed'));
+			row.remove();
+			return false;
+		});
+
+		$('form').submit(function(){
+			$('.unused, .template').remove();
+		});
+	});
+</script>

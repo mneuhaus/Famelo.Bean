@@ -1,0 +1,59 @@
+#                                                                        #
+# Create a new Model                                                     #
+#                                                                        #
+'model':
+  name: 'Models'
+  controller: Model
+  package: Famelo.Bean
+  source: \Famelo\Bean\Variables\Sources\ModelSource
+  variables:
+    modelName:
+      question: "Model name: "
+      label: "Model name"
+      type: entity
+    properties:
+      type: repeater
+      label: Properties
+      variables:
+        propertyName:
+          question: "Please enter a name for the property (leave empty to continue)"
+          label: "Property name"
+        propertyType:
+          type: propertyType
+  files:
+    -
+      builder: '\Famelo\Bean\Builder\NewModelBuilder'
+      template: 'resource://Famelo.Bean/Private/Beans/Model/Model.php'
+      target: '{classesPath}/Domain/Model/{modelName -> b:format.path()}.php'
+      partialPath: 'resource://Famelo.Bean/Private/Beans/Model/'
+
+'actionController':
+  name: 'Controller'
+  source: \Famelo\Bean\Variables\Sources\ModelSource
+  variables:
+    controllerName:
+      question: "Controller name: "
+      label: "Controller name"
+    actions:
+      label: "Actions"
+      type: repeater
+      variables:
+        actionName:
+          label: "Action name"
+          question: "Please enter a name for the action (leave empty to continue)"
+  files:
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Controller.php'
+      target: '{classesPath}/Controller/{controllerName -> b:format.path()}Controller.php'
+    -
+      builder: '\Famelo\Bean\Builder\RepeaterBuilder'
+      variable: actions
+      files:
+        -
+          template: 'resource://Famelo.Bean/Private/Beans/Controller/Template.html'
+          target: '{resourcesPath}/Private/Templates/{controllerName -> b:format.path()}/{actionName -> k:format.ucfirst()}.html'
+    -
+      template: 'resource://Famelo.Bean/Private/Beans/Controller/Policy.yaml'
+      target: '{configurationPath}/Policy.yaml'
+      builder: '\Famelo\Bean\Builder\PolicyBuilder'
+      mode: append

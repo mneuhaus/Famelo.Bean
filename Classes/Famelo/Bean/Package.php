@@ -39,5 +39,8 @@ class Package extends BasePackage {
 		$dispatcher->connect('TYPO3\Flow\Configuration\ConfigurationManager', 'configurationManagerReady', function(ConfigurationManager $configurationManager) {
 			$configurationManager->registerConfigurationType('Beans', ConfigurationManager::CONFIGURATION_PROCESSING_TYPE_APPEND);
 		});
+		$dispatcher->connect('TYPO3\Flow\Configuration\ConfigurationManager', 'configurationManagerReady', function(ConfigurationManager $configurationManager) {
+			$configurationManager->registerConfigurationType('Parts', ConfigurationManager::CONFIGURATION_PROCESSING_TYPE_APPEND);
+		});
 	}
 }

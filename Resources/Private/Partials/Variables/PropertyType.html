@@ -1,0 +1,49 @@
+<div class="form-group">
+	<f:form.select name="{variable.formName}[type]" options="{variable.options}" value="{variable.value.type}" class="form-control input-type"/>
+</div>
+
+<div class="row">
+	<div class="form-group col-xs-4 hidden" data-type="relation">
+		<label>Relation Type:</label>
+		<f:form.select name="{variable.formName}[relation]" options="{variable.relationTypes}" class="form-control input-relation" value="{variable.value.relation}"/>
+	</div>
+
+	<div class="form-group col-xs-4 hidden" data-type="relation">
+		<label>Target Entity:</label>
+		<f:form.select name="{variable.formName}[elementType]" options="{variable.entityOptions}" class="form-control" value="{variable.value.elementType}"/>
+	</div>
+
+	<div class="form-group col-xs-4 hidden" data-type="relation">
+		<label>Target Property:</label>
+		<f:form.textfield name="{variable.formName}[targetProperty]"  class="form-control input-target" value="{variable.value.targetProperty}"/>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		function updateFields() {
+			$('.property').each(function(){
+				var type = $(this).find('.input-type').val();
+				$(this).find('[data-type*="' + type + '"]').removeClass('hidden');
+			});
+		}
+		updateFields();
+
+		$(document).on( "change", ".property .input-type", updateFields);
+
+		$(document).on("change", ".input-relation", function() {
+			var element = $(this);
+			var target = element.parents('tr').find('.input-target');
+			var relation = element.val();
+			var className = $('[name="modelName"]').val();
+			var singular = className.toLowerCase();
+			var plural = owl.pluralize(singular);
+			if ((relation == 'oneToOne' || relation == 'oneToMany') && (target.val().length == 0 || target.val() == plural)) {
+				element.parents('tr').find('.input-target').val(singular);
+			}
+			if ((relation == 'manyToOne' || relation == 'manyToMany') && (target.val().length == 0 || target.val() == singular)) {
+				element.parents('tr').find('.input-target').val(plural);
+			}
+		});
+	});
+</script>

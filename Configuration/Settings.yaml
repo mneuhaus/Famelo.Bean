@@ -31,13 +31,14 @@ Famelo:
       propertyType: '\Famelo\Bean\Variables\PropertyTypeVariable'
       static: '\Famelo\Bean\Variables\StaticVariable'
       entity: '\Famelo\Bean\Variables\EntityVariable'
+      className: '\Famelo\Bean\Variables\ClassNameVariable'
 
     PropertyTypes:
       string: 'string'
       integer: 'integer'
       float: 'float'
       boolean: 'boolean'
-      datetime: '\DateTime'
+      '\DateTime': '\DateTime'
       relation: 'relation'
 
     DefaultVariables:

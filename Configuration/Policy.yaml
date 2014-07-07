@@ -1,0 +1,7 @@
+resources:
+  methods:
+    Famelo_Bean_StandardController: 'method(Famelo\Bean\Controller\StandardController->.*Action())'
+acls:
+  Everybody:
+    methods:
+      Famelo_Bean_StandardController: GRANT

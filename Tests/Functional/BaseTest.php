@@ -131,6 +131,30 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ExistingEntity {
 
+    /**
+     * @var string
+     *
+     */
+    protected $existingProperty;
+
+    /**
+     * Gets existingProperty.
+     *
+     * @return string $existingProperty
+     */
+    public function getExistingProperty() {
+        return $this->existingProperty;
+    }
+
+    /**
+     * Sets the existingProperty.
+     *
+     * @param string $existingProperty
+     */
+    public function setExistingProperty($existingProperty) {
+        $this->existingProperty = $someString;
+    }
+
 }');
 
 		$globalRoutes = $this->buildPath . '/Configuration/Routes.yaml';
@@ -201,6 +225,16 @@ class ExistingEntity {
 		);
 	}
 
+	public function assertClassHasNotProperty($className, $propertyName, $fileName = NULL) {
+		if ($fileName !== NULL) {
+			$fileName = $this->packagePath . $fileName;
+		}
+		$reflection = new ReflectionClass($className, $fileName);
+		$this->assertFalse($reflection->hasProperty($propertyName),
+			'"' . $className . '::$' . $propertyName . '" found'
+		);
+	}
+
 	public function assertClassHasDocComment($className, $propertyName, $docComment, $fileName = NULL) {
 		if ($fileName !== NULL) {
 			$fileName = $this->packagePath . $fileName;
@@ -218,6 +252,16 @@ class ExistingEntity {
 		}
 		$reflection = new ReflectionClass($className, $fileName);
 		$this->assertTrue($reflection->hasMethod($methodName),
+			'"' . $className . '::$' . $methodName . '()" not found'
+		);
+	}
+
+	public function assertClassHasNotMethod($className, $methodName, $fileName = NULL) {
+		if ($fileName !== NULL) {
+			$fileName = $this->packagePath . $fileName;
+		}
+		$reflection = new ReflectionClass($className, $fileName);
+		$this->assertFalse($reflection->hasMethod($methodName),
 			'"' . $className . '::$' . $methodName . '()" not found'
 		);
 	}

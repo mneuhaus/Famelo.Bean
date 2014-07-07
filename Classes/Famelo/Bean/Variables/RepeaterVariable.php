@@ -7,6 +7,11 @@ use TYPO3\Flow\Annotations as Flow;
  */
 class RepeaterVariable extends AbstractVariable {
 	/**
+	 * @var string
+	 */
+	protected $partial = 'Repeater';
+
+	/**
 	 * @var array
 	 * @Flow\Inject(setting="Variables")
 	 */
@@ -40,6 +45,38 @@ class RepeaterVariable extends AbstractVariable {
 			}
 		}
 		return $variables;
+	}
+
+	public function getRows() {
+		$rows = array();
+		$values = is_array($this->value) ? $this->value : array();
+		foreach ($values as $value) {
+			$rows[] = array(
+				'formName' => $this->getFormName() . '[' . $value['propertyName'] . ']',
+				'variables' => $this->getVariables($value, $this->getPropertyPath() . '.' . $value['propertyName'] . '.')
+			);
+		}
+		return $rows;
+	}
+
+	public function getVariables($value, $prefix) {
+		$variables = array();
+		foreach ($this->configuration['variables'] as $variableName => $variable) {
+			$variableType = isset($variable['type']) ? $variable['type'] : 'ask';
+			$variableImplementation = $this->getVariableImplementation($variableType);
+			$variable = new $variableImplementation($variable, array());
+			$variable->setName($variableName);
+			$variable->setPrefix($prefix);
+			if (isset($value[$variableName])){
+				$variable->setValue($value[$variableName]);
+			}
+			$variables[$variableName] = $variable;
+		}
+		return $variables;
+	}
+
+	public function getTemplate() {
+		return array('variables' => $this->getVariables(array(), $this->getPropertyPath() . '.--template--.'));
 	}
 
 	public function getVariableImplementation($variableType) {
