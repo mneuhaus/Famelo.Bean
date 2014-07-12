@@ -2,4 +2,249 @@
 {namespace b=Famelo\Bean\ViewHelpers}
 <f:section name="Main">
 	<b:flashMessages />
+
+
+
+	<div class="classes" id="classes-container">
+		<canvas id="canvas"></canvas>
+		<f:for each="{classes}" as="class">
+			<div class="class hidden" id="class-{class.name}" data-name="{class.name}" data-class="{class.namespace}\{class.name}">
+				<strong title="{class.namespace}\{class.name}" class="name">{class.name}</strong>
+				<hr />
+				<table>
+					<f:for each="{class.properties}" as="type" key="property">
+						<tr class="property">
+							<th><strong>{property}</strong>:</th><td>{type -> f:format.raw()}</td>
+						</tr>
+					</f:for>
+				</table>
+			</div>
+		</f:for>
+
+		<f:for each="{relations}" as="relation" iteration="iteration">
+			<div id="relation{iteration.index}" class="relation" data-source="{relation.source}" data-source-property="{relation.sourceProperty}" data-target="{relation.target}" data-target-property="{relation.targetProperty}" data-type="{relation.type}" data-source-label="{relation.sourceLabel}" data-target-label="{relation.targetLabel}" />
+		</f:for>
+	</div>
+
+
+	<script>
+		var nomnoml = nomnoml || {}
+
+		$(function (){
+			var jqCanvas = $('#canvas')
+			var viewport = $(window)
+			var canvasElement = document.getElementById('canvas')
+			var graphics = skanaar.Canvas(canvasElement, {})
+
+			// window.addEventListener('resize', _.throttle(sourceChanged, 750, {leading: true}))
+
+			function getConfig(d){
+				return {
+					arrowSize: +d.arrowSize || 1,
+					bendSize: +d.bendSize || 0,
+					direction: {down: 'TB', right: 'LR'}[d.direction] || 'LR',
+					gutter: +d.gutter || 5,
+					edgeMargin: (+d.edgeMargin) || 0,
+					edges: {hard: 'hard', rounded: 'rounded'}[d.edges] || 'rounded',
+					fill: (d.fill || '#eee8d5;#fdf6e3;#eee8d5;#fdf6e3').split(';'),
+					fillArrows: d.fillArrows === 'true',
+					font: d.font || 'Calibri',
+					fontSize: (+d.fontSize) || 12,
+					leading: (+d.leading) || 2,
+					lineWidth: (+d.lineWidth) || 3,
+					padding: (+d.padding) || 8,
+					spacing: (+d.spacing) || 50,
+					stroke: d.stroke || '#33322E',
+					zoom: +d.zoom || 1,
+					rankSimplex: true
+				}
+			}
+
+			function fitCanvasSize(rect, scale){
+				var w = rect.width * scale
+				var h = rect.height * scale
+				jqCanvas.attr({width: w, height: h})
+			}
+
+			function setFont(config, isBold, isItalic){
+				var style = (isBold === 'bold' ? 'bold ' : '')
+				if (isItalic) style = 'italic ' + style
+				graphics.ctx.font = style+config.fontSize+'pt '+config.font+', Helvetica, sans-serif'
+			}
+
+			function parseAndRender(){
+
+				var ast = {
+					lines: [],
+					nodes: [],
+					relations: [],
+					directives: []
+				}
+
+				$('.class').each(function(){
+					var c = $(this);
+					var properties = {
+						lines: [],
+						nodes: [],
+						relations: [],
+						properties: []
+					};
+					c.find('.property').each(function(){
+						var p = $(this);
+						properties.lines.push(p.find('strong').text() + ': ' + p.find('td').text());
+					});
+
+					ast.nodes.push({
+						name: c.attr('data-name'),
+						type: 'CLASS',
+						compartments: [
+							{
+								lines: [c.attr('data-name')],
+								nodes: [],
+								relations: [],
+								properties: []
+							},
+							properties
+						]
+					})
+				});
+
+				$('.relation').each(function(i){
+					var r = $(this);
+					if ($('[data-name="' + r.attr('data-source') + '"]').length == 0) {
+						return;
+					}
+					if ($('[data-name="' + r.attr('data-target') + '"]').length == 0) {
+						return
+					}
+					ast.relations.push({
+						id: i,
+						assoc: '-',
+						start: r.attr('data-source'),
+						startLabel: r.attr('data-source-label'),
+						startProperty: r.attr('data-source-property'),
+						end: r.attr('data-target'),
+						endLabel: r.attr('data-target-label'),
+						endProperty: r.attr('data-target-property'),
+						path: []
+					});
+					// console.log({
+					// 	id: i,
+					// 	assoc: '-',
+					// 	start: r.attr('data-source'),
+					// 	startLabel: r.attr('data-source-label'),
+					// 	startProperty: r.attr('data-source-property'),
+					// 	end: r.attr('data-target'),
+					// 	endLabel: r.attr('data-target-label'),
+					// 	endProperty: r.attr('data-target-property'),
+					// 	path: []
+					// });
+				});
+
+				console.log(ast);
+
+				var config = getConfig(ast.directives)
+				var measurer = {
+					setFont: setFont,
+					textWidth: function (s){ return graphics.ctx.measureText(s).width },
+					textHeight: function (s){ return config.leading * config.fontSize }
+				}
+				var layout = nomnoml.layout(measurer, config, ast)
+				fitCanvasSize(layout, config.zoom)
+				nomnoml.render(graphics, config, layout, setFont)
+			}
+			parseAndRender();
+		})
+
+		// var graph = new Springy.Graph();
+
+		// $('.class').each(function(){
+		// 	graph.addNodes($(this).attr('id'));
+		// });
+
+		// graph.addEdges(
+		//   ['class-Description', 'class-DescriptionPosition', {color: '#00A0B0', line: 'foo'}],
+		//   ['class-DescriptionPosition', 'class-Question', {color: '#6A4A3C', line: 'bar'}]
+		// );
+
+		// $('.edge').each(function(){
+		// 	var edge = $(this);
+		// 	try {
+		// 		graph.addEdges([edge.attr('data-source'), edge.attr('data-target'), {line: edge.attr('id')}]);
+		// 	} catch(e){
+		// 	// asdasd
+		// 	}
+		// })
+
+		// var layout = new Springy.Layout.ForceDirected(
+		//   graph,
+		//   0.0, // Spring stiffness
+		//   1000.0, // Node repulsion
+		//   0.1, // Damping,
+		//   10
+		// );
+		// var containerWidth = $('.classes').width();
+		// var containerHeight = $('.classes').height();
+
+		// // calculate bounding box of graph layout.. with ease-in
+		// var currentBB = layout.getBoundingBox();
+		// var targetBB = {bottomleft: new Springy.Vector(-2, -2), topright: new Springy.Vector(2, 2)};
+
+		// // auto adjusting bounding box
+		// Springy.requestAnimationFrame(function adjust() {
+		// 	targetBB = layout.getBoundingBox();
+		// 	// current gets 20% closer to target every iteration
+		// 	currentBB = {
+		// 		bottomleft: currentBB.bottomleft.add( targetBB.bottomleft.subtract(currentBB.bottomleft)
+		// 			.divide(10)),
+		// 		topright: currentBB.topright.add( targetBB.topright.subtract(currentBB.topright)
+		// 			.divide(10))
+		// 	};
+
+		// 	Springy.requestAnimationFrame(adjust);
+		// });
+
+		// // convert to/from screen coordinates
+		// var toScreen = function(p) {
+		// 	var size = currentBB.topright.subtract(currentBB.bottomleft);
+		// 	var sx = p.subtract(currentBB.bottomleft).divide(size.x).x * containerWidth;
+		// 	var sy = p.subtract(currentBB.bottomleft).divide(size.y).y * containerHeight;
+		// 	return new Springy.Vector(sx, sy);
+		// };
+
+		// var renderer = new Springy.Renderer(
+		//   layout,
+		//   function clear() {
+		//   	// asdj
+		//   },
+		//   function drawEdge(edge, p1, p2) {
+		//     // console.log(edge, p1, p2);
+		//     var x1 = toScreen(p1).x;
+		// 	var y1 = toScreen(p1).y;
+		// 	var x2 = toScreen(p2).x;
+		// 	var y2 = toScreen(p2).y;
+		// 	var source = $('#' + edge.source.id);
+		// 	var target = $('#' + edge.target.id);
+
+		// 	var line = $('#' + edge.data.line);
+		// 	// console.log(source.width() / 2);
+
+		// 	line.attr('x1', x1 + (source.width() / 2));
+		// 	line.attr('y1', y1 + (source.height() / 2));
+		// 	line.attr('x2', x2 + (target.width() / 2));
+		// 	line.attr('y2', y2 + (target.height() / 2));
+		//   },
+		//   function drawNode(node, p) {
+		//   	var s = toScreen(p);
+		//   	// var x = ((p.x / 2) * containerWidth) + (containerWidth / 2);
+		//   	//var y = ((p.y / 2) * containerHeight) + (containerHeight / 2);
+		//     // console.log(node.id, s);
+
+		//     $('#' + node.id).removeClass('hidden').css('position', 'absolute').css('left', s.x).css('top', s.y);
+		//   }
+		// );
+
+		// renderer.start();
+	</script>
+
 </f:section>

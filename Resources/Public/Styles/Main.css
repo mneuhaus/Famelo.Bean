@@ -80,3 +80,51 @@ tr.template {
 tr.unused button{
   display: none;
 }
+
+.classes {
+  position: relative;
+  width: 1400px;
+  height: 1000px;
+}
+.classes #svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1400px;
+  height: 1000px;
+}
+.classes #canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.class {
+  padding: 15px;
+  border: 2px solid #bbb;
+  background: #fafafa;
+  color: #76787a;
+  float: left;
+  margin-right: 40px;
+  margin-bottom: 40px;
+  border-radius: 5px;
+}
+
+.class small {
+  display: block;
+}
+
+.class .properties {
+  padding: 15px;
+  border: 2px solid #d1d1d1;
+  background: #e0e0e1;
+}
+
+.class hr {
+  border-top: 2px solid #d1d1d1;
+  margin: 10px -15px;
+}
+
+.class .property th {
+  padding-right: 10px;
+}

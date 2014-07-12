@@ -17,6 +17,12 @@ class BaseController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 
 	/**
 	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Reflection\ReflectionService
+	 */
+	protected $reflectionService;
+
+	/**
+	 * @Flow\Inject
 	 * @var \TYPO3\Flow\Package\PackageManagerInterface
 	 */
 	protected $packageManager;
@@ -115,6 +121,151 @@ class BaseController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 	 * @return void
 	 */
 	public function indexAction() {
+		$entities = $this->reflectionService->getClassNamesByAnnotation('\TYPO3\Flow\Annotations\Entity');
+		$classes = array();
+		$yumlDefinition = array();
+		$relations = array();
+		foreach ($entities as $entityClassName) {
+			if (in_array($entityClassName, array(
+				'TYPO3\Flow\Mvc\Routing\ObjectPathMapping',
+				'TYPO3\Flow\Resource\Publishing\AbstractPublishingConfiguration',
+				'TYPO3\Flow\Security\Authorization\Resource\SecurityPublishingConfiguration'
+			))) {
+				continue;
+			}
+
+			preg_match('/(.*)\\\\([^\\\\]*)/', $entityClassName, $match);
+			$classSchema = $this->reflectionService->getClassSchema($entityClassName);
+			$properties = array();
+
+			foreach ($classSchema->getProperties() as $propertyName => $property) {
+				if ($propertyName == 'Persistence_Object_Identifier') {
+					continue;
+				}
+				$type = $property['type'];
+				if ($property['elementType'] !== NULL) {
+					$type = $property['elementType'];
+				}
+
+				if (class_exists($type)) {
+					preg_match('/(.*)\\\\([^\\\\]*)/', $type, $targetMatch);
+					if (!empty($targetMatch)) {
+						$type = '<span title="\\' . $type . '">' . $targetMatch[2] . '</span>';
+					}
+				}
+				$properties[$propertyName] = $type;
+			}
+
+			// $class = '[' . $match[2];
+			// $class.= '|' . implode(';', array_keys($properties));
+			// $class.= ']';
+			// $yumlDefinition[] = $class;
+
+			foreach ($classSchema->getProperties() as $propertyName => $property) {
+				$type = $property['type'];
+				if ($property['elementType'] !== NULL) {
+					$type = $property['elementType'];
+				}
+				if ($this->reflectionService->isClassAnnotatedWith($type, '\TYPO3\Flow\Annotations\Entity')) {
+					preg_match('/(.*)\\\\([^\\\\]*)/', $type, $targetMatch);
+					//$yumlDefinition[] = '[' . $match[2] . ']-[' . $targetMatch[2] . ']';
+
+					$targetClassAnnotations = $this->reflectionService->getPropertyAnnotations($entityClassName, $propertyName);
+
+					foreach ($targetClassAnnotations as $annotationClassName => $annotations) {
+						$annotation = current($annotations);
+						$sides = array();
+						switch ($annotationClassName) {
+							case 'Doctrine\ORM\Mapping\OneToOne':
+								$sides = array(
+									$entityClassName . ':' . $propertyName,
+									$type . ':' . $annotation->mappedBy
+								);
+								//$relation = '[' . $match[2] . ']one:' . $propertyName . '-one:' . $annotation->mappedBy . '[' . $targetMatch[2] . ']';
+								$relation = array(
+									'source' => $match[2],
+									'sourceProperty' => $propertyName,
+									'target' => $targetMatch[2],
+									'targetProperty' => $annotation->mappedBy,
+									'type' => 'one-one',
+									'sourceLabel' => 'one',
+									'targetLabel' => 'one'
+								);
+								break;
+							case 'Doctrine\ORM\Mapping\OneToMany':
+								$sides = array(
+									$entityClassName . ':' . $propertyName,
+									$type . ':' . $annotation->mappedBy
+								);
+								//$relation = '[' . $match[2] . ']one:' . $propertyName . '-many:' . $annotation->mappedBy . '[' . $targetMatch[2] . ']';
+								$relation = array(
+									'source' => $match[2],
+									'sourceProperty' => $propertyName,
+									'target' => $targetMatch[2],
+									'targetProperty' => $annotation->mappedBy,
+									'type' => 'one-many',
+									'sourceLabel' => 'one',
+									'targetLabel' => 'many'
+								);
+								break;
+							case 'Doctrine\ORM\Mapping\ManyToOne':
+								$sides = array(
+									$entityClassName . ':' . $propertyName,
+									$type . ':' . $annotation->inversedBy
+								);
+								//$relation = '[' . $match[2] . ']many:' . $propertyName . '-one:' . $annotation->inversedBy . '[' . $targetMatch[2] . ']';
+								$relation = array(
+									'source' => $match[2],
+									'sourceProperty' => $propertyName,
+									'target' => $targetMatch[2],
+									'targetProperty' => $annotation->inversedBy,
+									'type' => 'many-one',
+									'sourceLabel' => 'many',
+									'targetLabel' => 'one'
+								);
+								break;
+							case 'Doctrine\ORM\Mapping\ManyToMany':
+								$sides = array(
+									$entityClassName . ':' . $propertyName,
+									$type . ':' . $annotation->inversedBy
+								);
+								//$relation = '[' . $match[2] . ']many:' . $propertyName . '-many:' . $annotation->inversedBy . '[' . $targetMatch[2] . ']';
+								$relation = array(
+									'source' => $match[2],
+									'sourceProperty' => $propertyName,
+									'target' => $targetMatch[2],
+									'targetProperty' => $annotation->inversedBy,
+									'type' => 'many-many',
+									'sourceLabel' => 'many',
+									'targetLabel' => 'many'
+								);
+								break;
+						}
+						if (!empty($sides)) {
+							sort($sides);
+							$identifier = implode(' - ', $sides);
+							if (!isset($relations[$identifier])) {
+								$relations[$identifier] = $relation;
+							}
+						}
+					}
+				}
+			}
+
+			$classes[] = array(
+				'name' => $match[2],
+				'namespace' => '\\' . $match[1],
+				'properties' => $properties
+				// 'relations' => array(
+				// 	'project' => 'manyToOne'
+				// )
+			);
+		}
+		// var_dump($relations);
+
+		// $this->view->assign('diagram', 'http://yuml.me/diagram/scruffy;dir:LR;scale:200/class/' . implode(',', $yumlDefinition));
+		$this->view->assign('relations', $relations);
+		$this->view->assign('classes', $classes);
 	}
 
 	/**
