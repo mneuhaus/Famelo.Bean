@@ -36,6 +36,9 @@ class NewModelBuilder extends PhpBuilder {
 		$this->classStatement = $this->getClass($statements);
 
 		foreach ($variables['properties'] as $propertyName => $property) {
+			if (isset($property['propertyName'])) {
+				$property['propertyName'] = lcfirst($property['propertyName']);
+			}
 			$property = new Property($propertyName, $property);
 
 			if ($property->shouldBeRemoved()) {
