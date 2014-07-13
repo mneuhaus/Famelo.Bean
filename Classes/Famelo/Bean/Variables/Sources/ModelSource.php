@@ -60,6 +60,9 @@ class ModelSource {
 				$models[$className] = $className;
 			}
 		}
+
+		ksort($models);
+
 		return $models;
 	}
 
