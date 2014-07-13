@@ -128,3 +128,7 @@ tr.unused button{
 .class .property th {
   padding-right: 10px;
 }
+
+.table td.variable {
+  padding-bottom: 0px;
+}
