@@ -10,6 +10,7 @@ namespace Famelo\Bean\Command;
 use Famelo\Common\Command\AbstractInteractiveCommandController;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Utility\Files;
 
 /**
  * @Flow\Scope("singleton")
@@ -152,5 +153,69 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 		);
 		$this->package = $packages[$choice];
 		$this->interaction->outputLine();
+	}
+
+	public function renamePackageCommand() {
+
+		$choices = array();
+		$packages = array();
+		foreach ($this->packageManager->getAvailablePackages() as $package) {
+			$manifest = $package->getComposerManifest();
+			if (isset($manifest->type) && stristr($manifest->type, 'typo3')) {
+				$choices[] = strtolower($package->getPackageKey());
+				$packages[strtolower($package->getPackageKey())] = $package;
+			}
+		}
+		$choice = $this->interaction->ask('<q>Which Package do you want to rename?</q>' . chr(10),
+			NULL,
+			$choices,
+			TRUE
+		);
+		$choice = 'typo3.expose';
+		$package = $packages[$choice];
+
+		$replacePackageKey = $this->interaction->ask('<q>What should the package be renamed to?</q>' . chr(10));
+
+		$searchReplace = array(
+			// packageKey
+			$package->getPackageKey() => $replacePackageKey,
+
+			// composer package name
+			strtolower(str_replace('\\', '/', $package->getNamespace())) => strtolower(str_replace('.', '/', $replacePackageKey)),
+
+			// Regular Namespace
+			$package->getNamespace() => str_replace('.', '\\', $replacePackageKey),
+
+			// Escaped Namespace
+			str_replace('\\', '\\\\', $package->getNamespace()) => str_replace('.', '\\\\', $replacePackageKey),
+
+			// extensionName
+			strtolower($package->getPackageKey()) => strtolower($replacePackageKey)
+		);
+
+		$packageFiles = array_merge(
+			Files::readDirectoryRecursively($package->getClassesPath(), 'php'),
+			Files::readDirectoryRecursively($package->getFunctionalTestsPath(), 'php'),
+			Files::readDirectoryRecursively($package->getConfigurationPath(), 'yaml'),
+			Files::readDirectoryRecursively($package->getResourcesPath())
+		);
+		foreach ($packageFiles as $packageFileName) {
+			$this->searchAndReplace($packageFileName, $searchReplace);
+		}
+
+		$this->searchAndReplace($package->getPackagePath() . 'composer.json', $searchReplace);
+
+		$searchPath = explode('.', $package->getPackageKey());
+		$replacePath = explode('.', $replacePackageKey);
+
+		rename($package->getClassesPath() . $searchPath[0], $package->getClassesPath() . $replacePath[0]);
+		rename($package->getClassesPath() . $replacePath[0] . '/' . $searchPath[1], $package->getClassesPath() . $replacePath[0] . '/' . $replacePath[1]);
+		rename($package->getPackagePath(), $package->getPackagePath() . '../' . $replacePackageKey);
+	}
+
+	public function searchAndReplace($fileName, $searchReplace) {
+		$content = file_get_contents($fileName);
+		$content = str_replace(array_keys($searchReplace), array_values($searchReplace), $content);
+		file_put_contents($fileName, $content);
 	}
 }
