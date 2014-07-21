@@ -78,6 +78,12 @@ class ModelSource {
 			if ($propertyName === 'Persistence_Object_Identifier') {
 				continue;
 			}
+
+			$propertyReflection = new \ReflectionProperty($this->source, $propertyName);
+			if (!stristr($propertyReflection->class, ltrim($this->source, '\\'))) {
+				continue;
+			}
+
 			$properties[] = array(
 				'propertyName' => $propertyName,
 				'propertyType' => $this->getPropertyType($propertyName, $property)
