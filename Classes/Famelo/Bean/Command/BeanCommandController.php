@@ -171,7 +171,6 @@ class BeanCommandController extends AbstractInteractiveCommandController {
 			$choices,
 			TRUE
 		);
-		$choice = 'typo3.expose';
 		$package = $packages[$choice];
 
 		$replacePackageKey = $this->interaction->ask('<q>What should the package be renamed to?</q>' . chr(10));
