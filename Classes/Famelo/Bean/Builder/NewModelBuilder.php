@@ -178,6 +178,10 @@ class NewModelBuilder extends PhpBuilder {
 		$targetProperty = $property->getTargetProperty();
 		$targetClassName = $property->getElementType();
 
+		if (!class_exists($targetClassName)) {
+			return;
+		}
+
 		$reflection = new ReflectionClass($targetClassName);
 		if ($reflection->hasProperty($targetProperty) === FALSE) {
 			$this->addPropertiesToClass(

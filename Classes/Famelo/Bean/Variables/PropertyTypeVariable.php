@@ -2,6 +2,7 @@
 namespace Famelo\Bean\Variables;
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Package\PackageManagerInterface;
 
 /**
  */
@@ -11,6 +12,12 @@ class PropertyTypeVariable extends AbstractVariable {
 	 * @Flow\Inject(setting="PropertyTypes")
 	 */
 	protected $propertyTypes;
+
+	/**
+	 * @Flow\Inject
+	 * @var PackageManagerInterface
+	 */
+	protected $packageManager;
 
 	/**
 	 * @var string
@@ -145,6 +152,31 @@ class PropertyTypeVariable extends AbstractVariable {
 		foreach ($classNames as $key => $className) {
 			$choices[$className] = $className;
 		}
+
+		foreach ($this->packageManager->getActivePackages() as $package) {
+			$packageNamespace = $package->getNamespace();
+			foreach ($package->getClassFiles() as $classFile) {
+				if (!stristr($classFile, 'Interface')) {
+					continue;
+				}
+				$className = substr(str_replace('/', '\\', $classFile), 0, -4);
+
+
+				if (substr($className, 0, 8) == 'Classes\\') {
+					$className = substr($className, 8);
+				}
+				if (substr($className, 0, strlen($packageNamespace)) == $packageNamespace) {
+					$className = substr($className, strlen($packageNamespace));
+				}
+				$className = $packageNamespace . $className;
+				if (!stristr($className, '\\Domain')) {
+					continue;
+				}
+
+				$choices[$className] = '\\' . $className;
+			}
+		}
+
 		asort($choices);
 
 		return $choices;
