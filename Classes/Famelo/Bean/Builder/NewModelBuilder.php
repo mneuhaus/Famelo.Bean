@@ -39,7 +39,7 @@ class NewModelBuilder extends PhpBuilder {
 			if (isset($property['propertyName'])) {
 				$property['propertyName'] = lcfirst($property['propertyName']);
 			}
-			$property = new Property($propertyName, $property);
+			$property = new Property($propertyName, $property, $className);
 
 			if ($property->shouldBeRemoved()) {
 				$this->removePropertyAndMethods($property);

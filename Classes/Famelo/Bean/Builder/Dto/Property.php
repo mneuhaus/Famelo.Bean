@@ -17,11 +17,18 @@ use PhpParser\Template;
 use PhpParser\printer\Standard;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Reflection\ClassSchema;
+use TYPO3\Flow\Reflection\ReflectionService;
 use TYPO3\Flow\Utility\Files;
 
 /**
  */
 class Property {
+	/**
+	 * @Flow\Inject
+	 * @var ReflectionService
+	 */
+	protected $reflectionService;
+
 	/**
 	 * @var array
 	 */
@@ -32,9 +39,15 @@ class Property {
 	 */
 	protected $identifier;
 
-	public function __construct($identifier, $configuration) {
+	/**
+	 * @var string
+	 */
+	protected $className;
+
+	public function __construct($identifier, $configuration, $className) {
 		$this->identifier = $identifier;
 		$this->configuration = $configuration;
+		$this->className = $className;
 	}
 
 	public function shouldBeRemoved() {
@@ -91,26 +104,50 @@ class Property {
 	}
 
 	public function getDocComment() {
+		$comment = array(
+			'/**',
+			'     * @var ' . $this->getType(),
+			'     */'
+		);
+		if (class_exists($this->className)) {
+			$classReflection = new \ReflectionClass($this->className);
+			$propertyReflection = $classReflection->getProperty($this->identifier);
+			$comment = explode(chr(10), $propertyReflection->getDocComment());
+			foreach ($comment as $line => $text) {
+				if (substr(ltrim($text, ' *'), 0, 4) == '@var') {
+					$comment[$line] = '     * @var ' . $this->getType();
+				}
+			}
+		}
+
 		if ($this->configuration['propertyType']['type'] !== 'relation') {
-			return '';
+			return implode(chr(10), $comment);
 		}
 
 		$type = $this->configuration['propertyType']['relation'];
-		$docComment = '@ORM\\' . ucfirst($type);
+		$ormComment = '@ORM\\' . ucfirst($type);
 
 		switch ($type) {
 			case 'oneToOne':
 			case 'oneToMany':
-				$docComment.= '(mappedBy="' . $this->getTargetProperty() . '")';
+				$ormComment.= '(mappedBy="' . $this->getTargetProperty() . '")';
 				break;
 
 			case 'manyToOne':
 			case 'manyToMany':
-				$docComment.= '(inversedBy="' . $this->getTargetProperty() . '")';
+				$ormComment.= '(inversedBy="' . $this->getTargetProperty() . '")';
 				break;
 		}
 
-		return $docComment;
+
+		foreach ($comment as $line => $text) {
+			if (substr(ltrim($text, ' *'), 0, 4) == '@ORM') {
+				$comment[$line] = '     * ' . $ormComment;
+				break;
+			}
+		}
+
+		return implode(chr(10), $comment);
 	}
 
 	public function generateRelationReverse($className) {
