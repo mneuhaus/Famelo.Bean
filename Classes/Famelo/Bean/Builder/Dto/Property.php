@@ -111,13 +111,15 @@ class Property {
 		);
 		if (class_exists($this->className)) {
 			$classReflection = new \ReflectionClass($this->className);
-			$propertyReflection = $classReflection->getProperty($this->identifier);
-			$comment = explode(chr(10), $propertyReflection->getDocComment());
-			foreach ($comment as $line => $text) {
-				if (substr(ltrim($text, ' *'), 0, 4) == '@var') {
-					$comment[$line] = '     * @var ' . $this->getType();
-				}
-			}
+            if ($classReflection->hasProperty($this->identifier)) {
+                $propertyReflection = $classReflection->getProperty($this->identifier);
+                $comment = explode(chr(10), $propertyReflection->getDocComment());
+                foreach ($comment as $line => $text) {
+                    if (substr(ltrim($text, ' *'), 0, 4) == '@var') {
+                        $comment[$line] = '     * @var ' . $this->getType();
+                    }
+                }
+            }
 		}
 
 		if ($this->configuration['propertyType']['type'] !== 'relation') {
