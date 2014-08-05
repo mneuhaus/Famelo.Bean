@@ -79,8 +79,8 @@ class ModelSource {
 				continue;
 			}
 
-			$propertyReflection = new \ReflectionProperty($this->source, $propertyName);
-			if (!stristr($propertyReflection->class, ltrim($this->source, '\\'))) {
+            $declaringClass = $this->getDeclaringTraitForProperty($this->source, $propertyName);
+			if (!stristr($declaringClass->name, ltrim($this->source, '\\'))) {
 				continue;
 			}
 
@@ -147,4 +147,52 @@ class ModelSource {
 			return $this->values[$name];
 		}
 	}
+
+    /**
+     * Finds the trait that declares $className::$propertyName
+     * source: http://mouf-php.com/blog/php_reflection_api_traits
+     */
+    public function getDeclaringTraitForProperty($className, $propertyName) {
+        $reflectionClass = new \ReflectionClass($className);
+
+        // Let's scan all traits
+        $trait = $this->deepScanTraitsForProperty($reflectionClass->getTraits(), $propertyName);
+        if ($trait != null) {
+            return $trait;
+        }
+        // The property is not part of the traits, let's find in which parent it is part of.
+        if ($reflectionClass->getParentClass()) {
+            $declaringClass = $this->getDeclaringTraitForProperty($reflectionClass->getParentClass()->getName(), $propertyName);
+            if ($declaringClass != null) {
+                return $declaringClass;
+            }
+        }
+        if ($reflectionClass->hasProperty($propertyName)) {
+            return $reflectionClass;
+        }
+
+        return null;
+    }
+
+    /**
+     * Recursive method called to detect a method into a nested array of traits.
+     *
+     * @param $traits ReflectionClass[]
+     * @param $propertyName string
+     * @return ReflectionClass|null
+     */
+    public function deepScanTraitsForProperty(array $traits, $propertyName) {
+        foreach ($traits as $trait) {
+            // If the trait has a property, it's a win!
+            $result = $this->deepScanTraitsForProperty($trait->getTraits(), $propertyName);
+            if ($result != null) {
+                return $result;
+            } else {
+                if ($trait->hasProperty($propertyName)) {
+                    return $trait;
+                }
+            }
+        }
+        return null;
+    }
 }
