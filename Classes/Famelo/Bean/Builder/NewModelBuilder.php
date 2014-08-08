@@ -198,6 +198,9 @@ class NewModelBuilder extends PhpBuilder {
 		$classStatement = $this->getClass($statements);
 
 		foreach ($properties as $propertyName => $property) {
+			if (empty($property['name'])) {
+				continue;
+			}
 			$property = new Property($propertyName, $property);
 			$this->setProperty($classStatement, $property);
 		}

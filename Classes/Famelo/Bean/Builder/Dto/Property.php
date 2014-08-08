@@ -142,11 +142,24 @@ class Property {
 		}
 
 
+		$ormCommentAdded = FALSE;
 		foreach ($comment as $line => $text) {
 			if (substr(ltrim($text, ' *'), 0, 4) == '@ORM') {
 				$comment[$line] = '     * ' . $ormComment;
+				$ormCommentAdded = TRUE;
 				break;
 			}
+		}
+
+		if ($ormCommentAdded === FALSE) {
+			$newCommment = array();
+			foreach ($comment as $line => $text) {
+				$newCommment[] = $text;
+				if (substr(ltrim($text, ' *'), 0, 4) == '@var') {
+					$newCommment[] = '     * ' . $ormComment;
+				}
+			}
+			$comment = $newCommment;
 		}
 
 		return implode(chr(10), $comment);
