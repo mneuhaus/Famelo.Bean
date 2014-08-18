@@ -225,10 +225,6 @@ class InteractionService {
             shell_exec(sprintf('stty %s', $sttyMode));
         }
 
-        if (array_values($autocomplete) !== $autocomplete) {
-            var_dump($autocomplete);
-        }
-
         return strlen($ret) > 0 ? $ret : $default;
     }
 

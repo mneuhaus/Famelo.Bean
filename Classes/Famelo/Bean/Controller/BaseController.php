@@ -261,7 +261,6 @@ class BaseController extends \TYPO3\Flow\Mvc\Controller\ActionController {
 				// )
 			);
 		}
-		// var_dump($relations);
 
 		// $this->view->assign('diagram', 'http://yuml.me/diagram/scruffy;dir:LR;scale:200/class/' . implode(',', $yumlDefinition));
 		$this->view->assign('relations', $relations);

@@ -71,7 +71,6 @@ class PhpBuilder extends AbstractBuilder {
 	public function getPartial($partial, $replacements) {
 		$template = file_get_contents($this->configuration['partialPath'] . $partial . '.php');
 		$template = new Template($this->parser, $template);
-		// var_dump($partial, $replacements);
 		$node = $template->getStmts($replacements);
 		return $node[0]->stmts;
 	}
