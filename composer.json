@@ -5,7 +5,7 @@
     "require": {
         "typo3/flow": "*",
         "famelo/common": "*",
-        "nikic/php-parser": "*",
+        "nikic/php-parser": "dev-master#6d0589d14f540f7e6be0a7f91b2d73f45847cb71",
         "typo3/kickstart": "*",
         "famelo/string-score": "*"
     },
