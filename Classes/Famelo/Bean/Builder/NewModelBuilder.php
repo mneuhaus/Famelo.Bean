@@ -56,6 +56,9 @@ class NewModelBuilder extends PhpBuilder {
 
 		$code = $this->printCode($statements);
 
+		if (!is_dir(dirname($fileName))) {
+			Files::createDirectoryRecursively(dirname($fileName));
+		}
 		file_put_contents($fileName, $code);
 		$this->addFlashMessage('"' . str_replace(FLOW_PATH_ROOT, '', $fileName) . '"', 'saved file: ');
 	}
