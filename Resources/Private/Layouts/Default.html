@@ -80,37 +80,28 @@
     </div>
 
     <div class="layout">
-      <f:if condition="{sources}">
-        <f:then>
-          <aside>
-            <f:for each="{sources}" as="sourceName" key="sourceKey">
-              <div class="media">
-                <f:link.action action="edit" arguments="{source: sourceKey}" addQueryString="1">
-                  <div class="media-body">
-                    <h4 class="media-heading">{sourceName}</h4>
-                    <small>{sourceKey}</small>
-                  </div>
-                </f:link.action>
+      <aside>
+        <f:for each="{sources}" as="sourceName" key="sourceKey">
+          <div class="media">
+            <f:link.action action="edit" arguments="{source: sourceKey}" addQueryString="1">
+              <div class="media-body">
+                <h4 class="media-heading">{sourceName}</h4>
+                <small>{sourceKey}</small>
               </div>
-            </f:for>
-              <div class="media">
-                <div class="media-body">
-                  <f:link.action action="new" arguments="{source: sourceKey}" addQueryString="1" class="btn btn-default btn-block">
-                    Create New
-                  </f:link.action>
-                </div>
-              </div>
-          </aside>
-          <section class="main with-sidebar">
-            <f:render section="Main" />
-          </section>
-        </f:then>
-        <f:else>
-          <section class="main">
-            <f:render section="Main" />
-          </section>
-        </f:else>
-      </f:if>
+            </f:link.action>
+          </div>
+        </f:for>
+          <div class="media">
+            <div class="media-body">
+              <f:link.action action="new" arguments="{source: sourceKey}" addQueryString="1" class="btn btn-default btn-block">
+                Create New
+              </f:link.action>
+            </div>
+          </div>
+      </aside>
+      <section class="main with-sidebar">
+        <f:render section="Main" />
+      </section>
     </div>
 
     <script src="{f:uri.resource(path: 'Components/pluralize/pluralize.js')}"></script>
