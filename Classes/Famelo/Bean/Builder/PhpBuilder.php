@@ -13,7 +13,7 @@ use PhpParser\BuilderFactory;
 use PhpParser\Lexer;
 use PhpParser\Parser;
 use PhpParser\printer\Standard;
-use PhpParser\Template;
+use Famelo\Bean\PhpParser\Template;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Utility\Files;
 
