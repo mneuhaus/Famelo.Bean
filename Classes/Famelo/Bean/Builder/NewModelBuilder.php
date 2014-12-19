@@ -15,7 +15,7 @@ use Famelo\Common\Command\AbstractInteractiveCommandController;
 use PhpParser\BuilderFactory;
 use PhpParser\Lexer;
 use PhpParser\Parser;
-use PhpParser\Template;
+use Famelo\Bean\PhpParser\Template;
 use PhpParser\printer\Standard;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Reflection\ClassSchema;
