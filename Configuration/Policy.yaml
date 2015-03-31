@@ -1,8 +1,11 @@
-resources:
-  methods:
-    Famelo_Bean: 'method(Famelo\Bean\Controller\.*Controller->.*Action())'
 
-acls:
-  Everybody:
-    methods:
-      Famelo_Bean: GRANT
+privilegeTargets:
+  TYPO3\Flow\Security\Authorization\Privilege\Method\MethodPrivilege:
+    Famelo_Bean:
+      matcher: 'method(Famelo\Bean\Controller\.*Controller->.*Action())'
+roles:
+  'TYPO3.Flow:Everybody':
+    privileges:
+      -
+        privilegeTarget: Famelo_Bean
+        permission: GRANT
