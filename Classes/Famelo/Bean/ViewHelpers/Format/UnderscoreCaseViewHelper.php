@@ -28,6 +28,14 @@ use TYPO3\Flow\Annotations as Flow;
  */
 class UnderscoreCaseViewHelper extends \TYPO3\Fluid\Core\ViewHelper\AbstractViewHelper {
 
+	
+	/**
+	 * NOTE: This property has been introduced via code migration to ensure backwards-compatibility.
+	 * @see AbstractViewHelper::isOutputEscapingEnabled()
+	 * @var boolean
+	 */
+	protected $escapeOutput = FALSE;
+
 	/**
 	 *
 	 * @return string The humanized string
